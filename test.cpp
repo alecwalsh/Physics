@@ -25,8 +25,10 @@ void cubeCollisionTest() {
 
     Physics::SimpleCubeCollider cubeCollider1{{0, 10, 0}, 1};
 
+    Physics::SimplePlaneCollider planeCollider{0};
+
     while (tm.elapsedTime < secondsToRun) {
-        cubeCollider1.position += Physics::getTranslation(velocity, cubeCollider1);
+        cubeCollider1.position += Physics::getTranslation(velocity, cubeCollider1, planeCollider);
 
         std::cout << "Velocity: " << velocity << std::endl;
 
@@ -63,7 +65,7 @@ int main() {
 
     //Physics::addToUI = [] (auto){};
 
-    sphereCollisionTest();
+    //sphereCollisionTest();
 
     cubeCollisionTest();
 

@@ -26,10 +26,12 @@ constexpr glm::vec3 calculateDistance(glm::vec3& velocity, float deltaTime) {
     return distance;
 }
 
-glm::vec3 getTranslation(glm::vec3& velocity, const SimpleCubeCollider& collider, float floorHeight) {
+glm::vec3 getTranslation(glm::vec3& velocity, const SimpleCubeCollider& cubeCollider, const SimplePlaneCollider& planeCollider) {
     glm::vec3 distance{};
 
-    if (collidesWithFloor(collider, floorHeight)) {
+    float floorHeight = planeCollider.height;
+
+    if (collidesWithFloor(cubeCollider, floorHeight)) {
         // Is currently colliding with the floor
         distance.y = 0;
         velocity.y = 0;
@@ -43,17 +45,21 @@ glm::vec3 getTranslation(glm::vec3& velocity, const SimpleCubeCollider& collider
         //    ImGui::NewLine();
         //});
 
-        auto newCollider = collider;
+        auto newCollider = cubeCollider;
         newCollider.position += distance;
         // Is not currently colliding with the floor
         if (collidesWithFloor(newCollider, floorHeight)) {
             // The new height will collide with the floor
             // Set distance so that the new height is exactly at the floor
-            distance.y = floorHeight - collider.position.y + collider.size / 2;
+            distance.y = floorHeight - cubeCollider.position.y + cubeCollider.size / 2;
         }
     }
 
     return distance;
+}
+
+glm::vec3 getTranslation(glm::vec3& velocity, const SimpleCubeCollider& cubeCollider, float floorHeight) {
+    return getTranslation(velocity, cubeCollider, SimplePlaneCollider{floorHeight});
 }
 
 bool SpheresCollide(const SphereCollider& sphere1, const SphereCollider& sphere2) {

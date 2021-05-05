@@ -21,10 +21,16 @@ struct SimpleCubeCollider {
     float size;
 };
 
+struct SimplePlaneCollider {
+    float height = 0;
+};
+
 constexpr float earthGravity = 9.81f;
 
+glm::vec3 getTranslation(glm::vec3& velocity, const SimpleCubeCollider& cubeCollider, float floorHeight = 0);
+
 // Applies gravity and collision detection and return a translation to be applied to the object
-glm::vec3 getTranslation(glm::vec3& velocity, const SimpleCubeCollider& collider, float floorHeight = 0);
+glm::vec3 getTranslation(glm::vec3& velocity, const SimpleCubeCollider& cubeCollider, const SimplePlaneCollider& planeCollider);
 
 glm::vec3 getTranslationSphere(glm::vec3& velocity, const SphereCollider& thisSphere, const SphereCollider& otherSphere);
 
