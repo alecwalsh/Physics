@@ -26,9 +26,11 @@ constexpr bool collidesWithFloor(const SphereCollider& collider, const SimplePla
 constexpr glm::vec3 calculateDistance(SimpleCubeCollider& cubeCollider, float deltaTime) {
     const auto acceleration = glm::vec3{0, -earthGravity, 0};
 
+    auto initialVelocity = cubeCollider.velocity;
+
     cubeCollider.velocity += acceleration * deltaTime;
 
-    auto distance = cubeCollider.velocity * deltaTime + (acceleration * deltaTime * deltaTime) / glm::vec3{2, 2, 2};
+    auto distance = initialVelocity * deltaTime + (acceleration * deltaTime * deltaTime) / glm::vec3{2, 2, 2};
 
     return distance;
 }
@@ -68,20 +70,15 @@ bool SpheresCollide(const SphereCollider& sphere1, const SphereCollider& sphere2
 }
 
 glm::vec3 calculateDistance(SphereCollider& sphereCollider, float deltaTime) {
-    const glm::vec3 acceleration = {0, earthGravity, 0};
+    const auto acceleration = glm::vec3{0, -earthGravity, 0};
 
-    sphereCollider.velocity -= acceleration * deltaTime;
+    auto initialVelocity = sphereCollider.velocity;
 
-    glm::vec3 translation = sphereCollider.velocity * deltaTime;
+    sphereCollider.velocity += acceleration * deltaTime;
 
-    auto v1 = glm::vec3{2};
-    assert(v1.x == v1.y && v1.y == v1.z);
+    auto distance = initialVelocity * deltaTime + (acceleration * deltaTime * deltaTime) / glm::vec3{2, 2, 2};
 
-    glm::vec3 distance = (acceleration * deltaTime * deltaTime) / glm::vec3{2};
-
-    translation -= distance;
-
-    return translation;
+    return distance;
 }
 
 // Applying vec to thisSphere result in an intersection

@@ -61,9 +61,9 @@ int main() {
 
     //Physics::addToUI = [] (auto){};
 
-    sphereCollisionTest(); // -25.3425
+    sphereCollisionTest(); // Max y velocity: -25.506
     
-    cubeCollisionTest(); // -13.5705
+    cubeCollisionTest(); // Max y velocity: -13.734
 
     return 0;
 }
