@@ -12,17 +12,17 @@ struct TimeManagerShim {
 namespace Physics {
 
 struct SphereCollider {
-    glm::vec3 position;
-    float radius;
+    glm::vec3 position = {};
+    float diameter = 1;
 
-    glm::vec3 velocity;
+    glm::vec3 velocity = {};
 };
 
 struct SimpleCubeCollider {
-    glm::vec3 position;
-    float size;
+    glm::vec3 position = {};
+    float size = 1;
 
-    glm::vec3 velocity;
+    glm::vec3 velocity = {};
 };
 
 struct SimplePlaneCollider {

@@ -18,7 +18,7 @@ constexpr bool collidesWithFloor(const SimpleCubeCollider& collider, const Simpl
 
 constexpr bool collidesWithFloor(const SphereCollider& collider, const SimplePlaneCollider& planeCollider) {
     auto height = collider.position.y;
-    auto size = collider.radius * 2;
+    auto size = collider.diameter;
 
     return (height - size / 2) <= planeCollider.height && (height + size / 2) >= planeCollider.height;
 }
@@ -64,7 +64,7 @@ glm::vec3 getTranslation(SimpleCubeCollider& cubeCollider, const SimplePlaneColl
 }
 
 bool SpheresCollide(const SphereCollider& sphere1, const SphereCollider& sphere2) {
-    return glm::length(sphere1.position - sphere2.position) <= (sphere1.radius + sphere2.radius);
+    return glm::length(sphere1.position - sphere2.position) <= (sphere1.diameter + sphere2.diameter)/2;
 }
 
 glm::vec3 calculateDistance(SphereCollider& sphereCollider, float deltaTime) {
@@ -89,7 +89,7 @@ glm::vec3 calculateDistance(SphereCollider& sphereCollider, float deltaTime) {
 glm::vec3 smallestY(const SphereCollider& thisSphere, const SphereCollider& otherSphere, glm::vec3 vec) {
     using std::pow, std::abs, std::sqrt;
     
-    auto dist2 = pow(thisSphere.radius + otherSphere.radius, 2);
+    auto dist2 = pow((thisSphere.diameter + otherSphere.diameter) / 2, 2);
 
     auto vecWithoutY = vec;
     vecWithoutY.y = 0;

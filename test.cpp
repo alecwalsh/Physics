@@ -43,9 +43,9 @@ void sphereCollisionTest() {
     auto tm = TimeManagerShim{elapsedTime, deltaTime};
     Physics::timeManager = &tm;
 
-    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 1, {}};
+    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
 
-    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 1, {}};
+    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}};
 
     while (tm.elapsedTime < secondsToRun) {
         sphereCollider1.position += Physics::getTranslation(sphereCollider1, sphereCollider2);
