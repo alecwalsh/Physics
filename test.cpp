@@ -21,12 +21,12 @@ void cubeCollisionTest() {
     auto tm = TimeManagerShim{elapsedTime, deltaTime};
     Physics::timeManager = &tm;
 
-    Physics::SimpleCubeCollider cubeCollider1{{0, 10, 0}, 1, {}};
+    Physics::SimpleCubeCollider cubeCollider1{{}, {0, 10, 0}, 1};
 
     Physics::SimplePlaneCollider planeCollider{0};
 
     while (tm.elapsedTime < secondsToRun) {
-        cubeCollider1.position += Physics::getTranslation(cubeCollider1, planeCollider);
+        cubeCollider1.position += cubeCollider1.getTranslation(planeCollider);
 
         std::cout << "Velocity: " << cubeCollider1.velocity << std::endl;
 
@@ -43,12 +43,12 @@ void sphereCollisionTest() {
     auto tm = TimeManagerShim{elapsedTime, deltaTime};
     Physics::timeManager = &tm;
 
-    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
+    Physics::SphereCollider sphereCollider1{{}, {0, 40, 0}, 2};
 
-    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}};
+    Physics::SphereCollider sphereCollider2{{}, {0, 5, 0}, 2};
 
     while (tm.elapsedTime < secondsToRun) {
-        sphereCollider1.position += Physics::getTranslation(sphereCollider1, sphereCollider2);
+        sphereCollider1.position += sphereCollider1.getTranslation(sphereCollider2);
 
         std::cout << "Velocity: " << sphereCollider1.velocity << std::endl;
 
