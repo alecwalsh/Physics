@@ -4,6 +4,8 @@
 
 #include "config.hpp"
 
+#include <glm/geometric.hpp>
+
 std::ostream& operator<<(std::ostream& os, glm::vec3 vec) {
     os << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
     return os;
@@ -12,7 +14,8 @@ std::ostream& operator<<(std::ostream& os, glm::vec3 vec) {
 double timeStep = 1 / 60.0;
 int secondsToRun = 5;
 
-void cubeCollisionTest() {
+float cubeCollisionTest() {
+    using glm::vec3;
     std::cout << "Testing cube collision" << std::endl;
 
     double elapsedTime = 0;
@@ -21,20 +24,30 @@ void cubeCollisionTest() {
     auto tm = TimeManagerShim{elapsedTime, deltaTime};
     Physics::timeManager = &tm;
 
-    Physics::SimpleCubeCollider cubeCollider1{{}, {0, 10, 0}, 1};
+    Physics::SimpleCubeCollider cubeCollider1{vec3{}, vec3{0, 10, 0}, 1};
 
     Physics::SimplePlaneCollider planeCollider{0};
 
-    while (tm.elapsedTime < secondsToRun) {
-        cubeCollider1.position += cubeCollider1.getTranslation(planeCollider);
+    float maxVelocity = 0;
 
-        std::cout << "Velocity: " << cubeCollider1.velocity << std::endl;
+    while(tm.elapsedTime < secondsToRun) {
+        cubeCollider1.ApplyCollision(planeCollider);
+
+        maxVelocity = std::max(maxVelocity, glm::length(cubeCollider1.velocity));
+
+        //std::cout << "Velocity: " << cubeCollider1.velocity << std::endl;
 
         Physics::timeManager->elapsedTime += timeStep;
     }
+
+    std::cout << "Max velocity: " << maxVelocity << std::endl;
+
+    return maxVelocity;
 }
 
-void sphereCollisionTest() {
+float sphereCollisionTest() {
+    using glm::vec3;
+
     std::cout << "Testing sphere collision" << std::endl;
 
     double elapsedTime = 0;
@@ -43,27 +56,44 @@ void sphereCollisionTest() {
     auto tm = TimeManagerShim{elapsedTime, deltaTime};
     Physics::timeManager = &tm;
 
-    Physics::SphereCollider sphereCollider1{{}, {0, 40, 0}, 2};
+    Physics::SphereCollider sphereCollider1{vec3{}, vec3{0, 40, 0}, 2};
 
-    Physics::SphereCollider sphereCollider2{{}, {0, 5, 0}, 2};
+    Physics::SphereCollider sphereCollider2{vec3{}, vec3{0, 5, 0}, 2};
+
+    float maxVelocity = 0;
 
     while (tm.elapsedTime < secondsToRun) {
-        sphereCollider1.position += sphereCollider1.getTranslation(sphereCollider2);
+        sphereCollider1.ApplyCollision(sphereCollider2);
 
-        std::cout << "Velocity: " << sphereCollider1.velocity << std::endl;
+        maxVelocity = std::max(maxVelocity, glm::length(sphereCollider1.velocity));
+
+        //std::cout << "Velocity: " << sphereCollider1.velocity << std::endl;
 
         Physics::timeManager->elapsedTime += timeStep;
     }
+
+    std::cout << "Max velocity: " << maxVelocity << std::endl;
+
+    return maxVelocity;
+}
+
+void collisionTest() {
+    using glm::vec3;
+
+    auto sphereMax = sphereCollisionTest(); // Max y velocity: -25.506
+    auto cubeMax = cubeCollisionTest(); // Max y velocity: -13.734
+
+    assert(sphereMax == 25.5059795F);
+    assert(cubeMax == 13.7339916F);
 }
 
 int main() {
     std::cout << "Hello Physics" << std::endl;
+    std::cout << "Version: " << Physics::PROJECT_VERSION << std::endl;
 
     //Physics::addToUI = [] (auto){};
 
-    sphereCollisionTest(); // Max y velocity: -25.506
-    
-    cubeCollisionTest(); // Max y velocity: -13.734
+    collisionTest();
 
     return 0;
 }

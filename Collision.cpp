@@ -9,35 +9,34 @@
 
 namespace Physics {
 
-constexpr bool SimpleCubeCollider::collidesWith(const SimplePlaneCollider& planeCollider) const {
+constexpr bool SimpleCubeCollider::CollidesWith(const SimplePlaneCollider& planeCollider) const {
     auto height = position.y;
 
     return (height - size / 2) <= planeCollider.height && (height + size/2) >= planeCollider.height;
 }
 
-constexpr glm::vec3 Collider::calculateDistance(float deltaTime) {
+constexpr std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const {
+    float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
     const auto& acceleration = earthGravityVector;
 
     auto initialVelocity = velocity;
 
-    velocity += acceleration * deltaTime;
+    auto newVelocity = velocity + acceleration * deltaTime;
 
     auto distance = initialVelocity * deltaTime + (acceleration * (deltaTime * deltaTime / 2));
 
-    return distance;
+    return {position + distance, newVelocity};
 }
 
-glm::vec3 SimpleCubeCollider::getTranslation(const SimplePlaneCollider& planeCollider) {
+void SimpleCubeCollider::ApplyCollision(const SimplePlaneCollider& planeCollider) {
     float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
-    glm::vec3 distance{};
-
-    if (collidesWith(planeCollider)) {
+    if(CollidesWith(planeCollider)) {
         // Is currently colliding with the floor
-        distance.y = 0;
         velocity.y = 0;
-    } else {
-        distance = calculateDistance(deltaTime);
+    }
+    else {
+        auto [newPosition, newVelocity] = CalculatePositionAndVelocity();
 
         //addToUI([distance, velocity] {
         //    ImGui::Text("Physics info:");
@@ -47,47 +46,50 @@ glm::vec3 SimpleCubeCollider::getTranslation(const SimplePlaneCollider& planeCol
         //});
 
         auto newCollider = *this;
-        newCollider.position += distance;
+        newCollider.position = newPosition;
+        newCollider.velocity = newVelocity;
         // Is not currently colliding with the floor
-        if (newCollider.collidesWith(planeCollider)) {
+        if(newCollider.CollidesWith(planeCollider)) {
             // The new height will collide with the floor
             // Set distance so that the new height is exactly at the floor
-            distance.y = planeCollider.height - position.y + size / 2;
+            
+            //distance.y = planeCollider.height - position.y + size / 2;
+            newCollider.position.y = planeCollider.height + size / 2;
         }
-    }
 
-    return distance;
+        *this = newCollider;
+    }
 }
 
 bool SphereCollider::CollidesWith(const SphereCollider& sphere2) const {
-    return glm::length(position - sphere2.position) <= (diameter + sphere2.diameter)/2;
+    return glm::length(position - sphere2.position) <= (size + sphere2.size) / 2;
 }
 
-constexpr bool SphereCollider::collidesWith(const SimplePlaneCollider& planeCollider) const {
+constexpr bool SphereCollider::CollidesWith(const SimplePlaneCollider& planeCollider) const {
     auto height = position.y;
 
-    return (height - diameter / 2) <= planeCollider.height && (height + diameter / 2) >= planeCollider.height;
+    return (height - size / 2) <= planeCollider.height && (height + size / 2) >= planeCollider.height;
 }
 
 // Applying vec to thisSphere result in an intersection
 // This function finds the value for vec.y that makes the spheres touch, but not intersect
 // TODO: Use x, y, and z instead of just y
-glm::vec3 SphereCollider::smallestY(const SphereCollider& otherSphere, glm::vec3 vec) const {
+glm::vec3 SphereCollider::SmallestY(const SphereCollider& otherSphere, glm::vec3 vec) const {
     using std::pow, std::abs, std::sqrt;
-    
-    auto dist2 = pow((diameter + otherSphere.diameter) / 2, 2);
+
+    auto dist2 = pow((size + otherSphere.size) / 2, 2);
 
     auto vecWithoutY = vec;
     vecWithoutY.y = 0;
-    
+
     const auto p1 = position + vecWithoutY;
     const auto p2 = otherSphere.position;
 
     const auto a = 1.0;
     const auto b = 2 * (p1.y - p2.y);
     const auto c = pow(p1.x - p2.x, 2) + pow(p1.z - p2.z, 2) + pow(p1.y - p2.y, 2) - dist2;
-    
-    auto det = b*b - 4*a*c;
+
+    auto det = b * b - 4 * a * c;
 
     auto r1 = (-b + sqrt(det)) / (2 * a);
     auto r2 = (-b - sqrt(det)) / (2 * a);
@@ -99,22 +101,20 @@ glm::vec3 SphereCollider::smallestY(const SphereCollider& otherSphere, glm::vec3
 
     glm::vec3 diff = {0, yDiff, 0};
 
-    return vecWithoutY + diff;
+    return diff;
 }
 
-glm::vec3 SphereCollider::getTranslation(const SphereCollider& otherSphere) {
+void SphereCollider::ApplyCollision(const SphereCollider& otherSphere) {
     float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
-    glm::vec3 distance = velocity * deltaTime;
-
-    if (CollidesWith(otherSphere)) {
+    if(CollidesWith(otherSphere)) {
         // Is currently colliding with the other sphere
-        distance.y = 0;
         velocity.y = 0;
-    } else {
+    }
+    else {
         // TODO: Don't apply full velocity here because the sphere is only moving partway through distance
         // Is not currently colliding with the other sphere
-        distance = calculateDistance(deltaTime);
+        auto [newPosition, newVelocity] = CalculatePositionAndVelocity();
 
         //addToUI([distance, velocity] {
         //    ImGui::Text("Physics info:");
@@ -124,15 +124,16 @@ glm::vec3 SphereCollider::getTranslation(const SphereCollider& otherSphere) {
         //});
 
         auto newCollider = *this;
-        newCollider.position += distance;
+        newCollider.position = newPosition;
+        newCollider.velocity = newVelocity;
 
-        if (newCollider.CollidesWith(otherSphere)) {
+        if(newCollider.CollidesWith(otherSphere)) {
             // The new position will collide with the other sphere
-            distance = smallestY(otherSphere, distance);
+            newCollider.position += SmallestY(otherSphere, newPosition - position);
         }
-    }
 
-    return distance;
+        *this = newCollider;
+    }
 }
 
 } // namespace Physics
