@@ -14,7 +14,7 @@ std::ostream& operator<<(std::ostream& os, glm::vec3 vec) {
 double timeStep = 1 / 60.0;
 int secondsToRun = 5;
 
-float cubeCollisionTest() {
+void cubeCollisionTest() {
     using glm::vec3;
     std::cout << "Testing cube collision" << std::endl;
 
@@ -35,17 +35,16 @@ float cubeCollisionTest() {
 
         maxVelocity = std::max(maxVelocity, glm::length(cubeCollider1.velocity));
 
-        //std::cout << "Velocity: " << cubeCollider1.velocity << std::endl;
-
         Physics::timeManager->elapsedTime += timeStep;
     }
 
-    std::cout << "Max velocity: " << maxVelocity << std::endl;
+    auto correctFinalPosition = vec3{0, 0.5, 0};
 
-    return maxVelocity;
+    assert(cubeCollider1.position == correctFinalPosition);
+    assert(maxVelocity == 13.7339916F);
 }
 
-float sphereCollisionTest() {
+void sphereCollisionTest() {
     using glm::vec3;
 
     std::cout << "Testing sphere collision" << std::endl;
@@ -67,24 +66,18 @@ float sphereCollisionTest() {
 
         maxVelocity = std::max(maxVelocity, glm::length(sphereCollider1.velocity));
 
-        //std::cout << "Velocity: " << sphereCollider1.velocity << std::endl;
-
         Physics::timeManager->elapsedTime += timeStep;
     }
 
-    std::cout << "Max velocity: " << maxVelocity << std::endl;
+    auto correctFinalPosition = vec3{0, 7, 0};
 
-    return maxVelocity;
+    assert(sphereCollider1.position == correctFinalPosition);
+    assert(maxVelocity == 25.5059795F);
 }
 
 void collisionTest() {
-    using glm::vec3;
-
-    auto sphereMax = sphereCollisionTest(); // Max y velocity: -25.506
-    auto cubeMax = cubeCollisionTest(); // Max y velocity: -13.734
-
-    assert(sphereMax == 25.5059795F);
-    assert(cubeMax == 13.7339916F);
+    cubeCollisionTest();
+    sphereCollisionTest();
 }
 
 int main() {

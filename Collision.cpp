@@ -129,7 +129,7 @@ void SphereCollider::ApplyCollision(const SphereCollider& otherSphere) {
 
         if(newCollider.CollidesWith(otherSphere)) {
             // The new position will collide with the other sphere
-            newCollider.position += SmallestY(otherSphere, newPosition - position);
+            newCollider.position = position + SmallestY(otherSphere, newPosition - position);
         }
 
         *this = newCollider;
