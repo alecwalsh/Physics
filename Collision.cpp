@@ -4,15 +4,116 @@
 
 #include <glm/geometric.hpp>
 
+#include <sstream>
+#include <stdexcept>
+
 //#include "imgui.h"
 //TODO: Figure out how to support adding to the UI from within this project
 
 namespace Physics {
 
-constexpr bool SimpleCubeCollider::CollidesWith(const SimplePlaneCollider& planeCollider) const {
-    auto height = position.y;
+    namespace Collision {
+        class CollisionNotImplementedException : public std::runtime_error {
+            auto CreateExceptionText(const Collider& collider1, const Collider& collider2) {
+                auto type1 = collider1.GetCollisionDispatcher()->GetType();
+                auto type2 = collider2.GetCollisionDispatcher()->GetType();
+                
+                std::ostringstream ss;
+                ss << "Collision between " << type1 << " and " << type2 << "is not implemented";
+                return ss.str();
+            }
+        public:
+            CollisionNotImplementedException(const Collider& collider1, const Collider& collider2) :
+                runtime_error{CreateExceptionText(collider1, collider2)} {}
+        };
 
-    return (height - size / 2) <= planeCollider.height && (height + size/2) >= planeCollider.height;
+        bool Collides(const SimplePlaneCollider& collider1, const SimplePlaneCollider& collider2) {
+            throw CollisionNotImplementedException{collider1, collider2};
+        }
+
+        bool Collides(const SimplePlaneCollider& collider1, const SimpleCubeCollider& collider2) {
+            auto height = collider1.position.y;
+            auto planeHeight = collider2.position.y;
+
+            return (height - collider1.size / 2) <= planeHeight && (height + collider1.size / 2) >= planeHeight;
+        }
+
+        bool Collides(const SimplePlaneCollider& collider1, const SphereCollider& collider2) {
+            auto height = collider1.position.y;
+            auto planeHeight = collider2.position.y;
+
+            return (height - collider1.size / 2) <= planeHeight && (height + collider1.size / 2) >= planeHeight;
+        }
+
+        bool Collides(const SimpleCubeCollider& collider1, const SimplePlaneCollider& collider2) {
+            return Collides(collider2, collider1);
+        }
+
+        bool Collides(const SimpleCubeCollider& collider1, const SimpleCubeCollider& collider2) {
+            throw CollisionNotImplementedException{collider1, collider2};
+        }
+
+        bool Collides(const SimpleCubeCollider& collider1, const SphereCollider& collider2) {
+            throw CollisionNotImplementedException{collider1, collider2};
+        }
+
+        bool Collides(const SphereCollider& collider1, const SimplePlaneCollider& collider2) {
+            return Collides(collider2, collider1);
+        }
+
+        bool Collides(const SphereCollider& collider1, const SimpleCubeCollider& collider2) {
+            throw CollisionNotImplementedException{collider1, collider2};
+        }
+
+        bool Collides(const SphereCollider& collider1, const SphereCollider& collider2) {
+            return glm::length(collider1.position - collider2.position) <= (collider1.size + collider2.size) / 2;
+        }
+    }
+
+bool SimplePlaneCollider::SimplePlaneDispatcher::CollidesWith(const SimplePlaneCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SimplePlaneCollider::SimplePlaneDispatcher::CollidesWith(const SimpleCubeCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SimplePlaneCollider::SimplePlaneDispatcher::CollidesWith(const SphereCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SimpleCubeCollider::SimpleCubeDispatcher::CollidesWith(const SimplePlaneCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SimpleCubeCollider::SimpleCubeDispatcher::CollidesWith(const SimpleCubeCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SimpleCubeCollider::SimpleCubeDispatcher::CollidesWith(const SphereCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SphereCollider::SphereDispatcher::CollidesWith(const SimplePlaneCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SphereCollider::SphereDispatcher::CollidesWith(const SimpleCubeCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+bool SphereCollider::SphereDispatcher::CollidesWith(const SphereCollider& other) {
+    return Collision::Collides(*thisCollider, other);
+}
+
+Collider::Collider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg) : 
+    position{position}, size{size}, velocity{velocity} {}
+
+SphereCollider::SphereCollider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg) : 
+    Collider{position, size, velocity, tmparg} {}
+
+SimpleCubeCollider::SimpleCubeCollider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg) :
+    Collider{position, size, velocity, tmparg} {
 }
 
 constexpr std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const {
@@ -54,21 +155,11 @@ void SimpleCubeCollider::ApplyCollision(const SimplePlaneCollider& planeCollider
             // Set distance so that the new height is exactly at the floor
             
             //distance.y = planeCollider.height - position.y + size / 2;
-            newCollider.position.y = planeCollider.height + size / 2;
+            newCollider.position.y = planeCollider.position.y + size / 2;
         }
 
         *this = newCollider;
     }
-}
-
-bool SphereCollider::CollidesWith(const SphereCollider& sphere2) const {
-    return glm::length(position - sphere2.position) <= (size + sphere2.size) / 2;
-}
-
-constexpr bool SphereCollider::CollidesWith(const SimplePlaneCollider& planeCollider) const {
-    auto height = position.y;
-
-    return (height - size / 2) <= planeCollider.height && (height + size / 2) >= planeCollider.height;
 }
 
 // Applying vec to thisSphere result in an intersection
@@ -133,6 +224,26 @@ void SphereCollider::ApplyCollision(const SphereCollider& otherSphere) {
         }
 
         *this = newCollider;
+    }
+}
+
+
+
+void collideAll(const std::vector<Collider*>& colliders) {
+    float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
+
+    for(auto collider1 : colliders) {
+        auto [distance, velocity] = collider1->CalculatePositionAndVelocity();
+
+        //auto newCollider = *collider1;
+        //newCollider.position += distance;
+        //newCollider.velocity = velocity;
+
+        for(auto collider2 : colliders) {
+            if(collider1 == collider2) continue;
+            collider1->CollidesWith(*collider2);
+
+        }
     }
 }
 
