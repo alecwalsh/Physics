@@ -5,116 +5,89 @@
 #include <glm/geometric.hpp>
 
 #include <sstream>
-#include <stdexcept>
+
+#include <type_traits>
 
 //#include "imgui.h"
 //TODO: Figure out how to support adding to the UI from within this project
 
 namespace Physics {
 
-    namespace Collision {
-        class CollisionNotImplementedException : public std::runtime_error {
-            auto CreateExceptionText(const Collider& collider1, const Collider& collider2) {
-                auto type1 = collider1.GetCollisionDispatcher()->GetType();
-                auto type2 = collider2.GetCollisionDispatcher()->GetType();
-                
-                std::ostringstream ss;
-                ss << "Collision between " << type1 << " and " << type2 << "is not implemented";
-                return ss.str();
-            }
-        public:
-            CollisionNotImplementedException(const Collider& collider1, const Collider& collider2) :
-                runtime_error{CreateExceptionText(collider1, collider2)} {}
-        };
+std::string NotImplementedException::CreateExceptionText(const Collider& collider1, const Collider& collider2) const {
+    std::ostringstream ss;
+    ss << "Collision between " << collider1.GetName() << " and " << collider2.GetName() << " is not implemented";
+    return ss.str();
+}
 
-        bool Collides(const SimplePlaneCollider& collider1, const SimplePlaneCollider& collider2) {
-            throw CollisionNotImplementedException{collider1, collider2};
+#define IMPL_COLLIDES_DEFAULT(Type1, Type2) \
+    bool operator()(const Type1& collider1, const Type2& collider2) { \
+        throw NotImplementedException{collider1, collider2}; \
+    }
+
+// Making this a struct with operator() allows us to use std::is_invocable
+struct CollidesImpl {
+    IMPL_COLLIDES_DEFAULT(SimplePlaneCollider, SimplePlaneCollider);
+
+    bool operator()(const SimplePlaneCollider& collider1, const SimpleCubeCollider& collider2) {
+        auto planeHeight = collider1.position.y;
+        auto height = collider2.position.y;
+
+        return (height - collider2.size / 2) <= planeHeight && (height + collider2.size / 2) >= planeHeight;
+    }
+
+    bool operator()(const SimplePlaneCollider& collider1, const SphereCollider& collider2) {
+        auto planeHeight = collider1.position.y;
+        auto height = collider2.position.y;
+
+        return (height - collider2.size / 2) <= planeHeight && (height + collider2.size / 2) >= planeHeight;
+    }
+
+    IMPL_COLLIDES_DEFAULT(SimpleCubeCollider, SimpleCubeCollider);
+    IMPL_COLLIDES_DEFAULT(SimpleCubeCollider, SphereCollider);
+
+    bool operator()(const SphereCollider& collider1, const SphereCollider& collider2) {
+        return glm::length(collider1.position - collider2.position) <= (collider1.size + collider2.size) / 2;
+    }
+};
+#undef IMPL_COLLIDES_DEFAULT
+
+    // Collision testing is symmetric
+    // This function switches the order of arguments if necessary
+    // This allows us to cut the number of required collision testing functions by half
+    template<typename T, typename U>
+    bool Collides(const T& t, const U& u) {
+        constexpr bool invokableTU = std::is_invocable_v<CollidesImpl, T, U>;
+        constexpr bool invokableUT = std::is_invocable_v<CollidesImpl, U, T>;
+
+        static_assert(invokableTU || invokableUT);
+
+        if constexpr(invokableTU) {
+            return CollidesImpl{}(t, u);
         }
-
-        bool Collides(const SimplePlaneCollider& collider1, const SimpleCubeCollider& collider2) {
-            auto height = collider1.position.y;
-            auto planeHeight = collider2.position.y;
-
-            return (height - collider1.size / 2) <= planeHeight && (height + collider1.size / 2) >= planeHeight;
-        }
-
-        bool Collides(const SimplePlaneCollider& collider1, const SphereCollider& collider2) {
-            auto height = collider1.position.y;
-            auto planeHeight = collider2.position.y;
-
-            return (height - collider1.size / 2) <= planeHeight && (height + collider1.size / 2) >= planeHeight;
-        }
-
-        bool Collides(const SimpleCubeCollider& collider1, const SimplePlaneCollider& collider2) {
-            return Collides(collider2, collider1);
-        }
-
-        bool Collides(const SimpleCubeCollider& collider1, const SimpleCubeCollider& collider2) {
-            throw CollisionNotImplementedException{collider1, collider2};
-        }
-
-        bool Collides(const SimpleCubeCollider& collider1, const SphereCollider& collider2) {
-            throw CollisionNotImplementedException{collider1, collider2};
-        }
-
-        bool Collides(const SphereCollider& collider1, const SimplePlaneCollider& collider2) {
-            return Collides(collider2, collider1);
-        }
-
-        bool Collides(const SphereCollider& collider1, const SimpleCubeCollider& collider2) {
-            throw CollisionNotImplementedException{collider1, collider2};
-        }
-
-        bool Collides(const SphereCollider& collider1, const SphereCollider& collider2) {
-            return glm::length(collider1.position - collider2.position) <= (collider1.size + collider2.size) / 2;
+        else {
+            return CollidesImpl{}(u, t);
         }
     }
 
-bool SimplePlaneCollider::SimplePlaneDispatcher::CollidesWith(const SimplePlaneCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
+#define IMPL_COLLIDES(Type1, Type2) \
+template bool Collides<Type1, Type2>(const Type1&, const Type2&);
 
-bool SimplePlaneCollider::SimplePlaneDispatcher::CollidesWith(const SimpleCubeCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
+        IMPL_COLLIDES(SimplePlaneCollider, SimplePlaneCollider)
+        IMPL_COLLIDES(SimplePlaneCollider, SimpleCubeCollider)
+        IMPL_COLLIDES(SimplePlaneCollider, SphereCollider)
 
-bool SimplePlaneCollider::SimplePlaneDispatcher::CollidesWith(const SphereCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
+        IMPL_COLLIDES(SimpleCubeCollider, SimplePlaneCollider)
+        IMPL_COLLIDES(SimpleCubeCollider, SimpleCubeCollider)
+        IMPL_COLLIDES(SimpleCubeCollider, SphereCollider)
 
-bool SimpleCubeCollider::SimpleCubeDispatcher::CollidesWith(const SimplePlaneCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
+        IMPL_COLLIDES(SphereCollider, SimplePlaneCollider)
+        IMPL_COLLIDES(SphereCollider, SimpleCubeCollider)
+        IMPL_COLLIDES(SphereCollider, SphereCollider)
 
-bool SimpleCubeCollider::SimpleCubeDispatcher::CollidesWith(const SimpleCubeCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
-
-bool SimpleCubeCollider::SimpleCubeDispatcher::CollidesWith(const SphereCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
-
-bool SphereCollider::SphereDispatcher::CollidesWith(const SimplePlaneCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
-
-bool SphereCollider::SphereDispatcher::CollidesWith(const SimpleCubeCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
-
-bool SphereCollider::SphereDispatcher::CollidesWith(const SphereCollider& other) {
-    return Collision::Collides(*thisCollider, other);
-}
+#undef IMPL_COLLIDES
 
 Collider::Collider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg) : 
     position{position}, size{size}, velocity{velocity} {}
-
-SphereCollider::SphereCollider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg) : 
-    Collider{position, size, velocity, tmparg} {}
-
-SimpleCubeCollider::SimpleCubeCollider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg) :
-    Collider{position, size, velocity, tmparg} {
-}
 
 constexpr std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const {
     float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
