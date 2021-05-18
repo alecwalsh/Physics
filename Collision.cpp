@@ -86,7 +86,7 @@ template bool Collides<Type1, Type2>(const Type1&, const Type2&);
 
 #undef IMPL_COLLIDES
 
-Collider::Collider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg) : 
+Collider::Collider(glm::vec3 position, float size, glm::vec3 velocity) : 
     position{position}, size{size}, velocity{velocity} {}
 
 constexpr std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const {

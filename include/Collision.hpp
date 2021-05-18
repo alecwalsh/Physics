@@ -73,7 +73,7 @@ public:
     float size = 1;
     glm::vec3 velocity = {};
 
-    Collider(glm::vec3 position, float size, glm::vec3 velocity, bool tmparg);
+    Collider(glm::vec3 position, float size, glm::vec3 velocity);
 
     constexpr std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const;
 
@@ -109,7 +109,7 @@ public:
     static constexpr const char* name = "SimplePlane";
 
     using ColliderCreator::ColliderCreator;
-    SimplePlaneCollider(float height) : ColliderCreator{{0, height, 0}, 1, {}, false} {}
+    SimplePlaneCollider(float height) : ColliderCreator{{0, height, 0}, 1, {}} {}
 };
 
 class SimpleCubeCollider : public ColliderCreator<SimpleCubeCollider> {

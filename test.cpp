@@ -23,7 +23,7 @@ void cubeCollisionTest() {
     auto tm = TimeManagerShim{elapsedTime, deltaTime};
     Physics::timeManager = &tm;
 
-    Physics::SimpleCubeCollider cubeCollider1{{0, 10, 0}, 1, {}, false};
+    Physics::SimpleCubeCollider cubeCollider1{{0, 10, 0}, 1, {}};
 
     Physics::SimplePlaneCollider planeCollider{0};
 
@@ -52,9 +52,9 @@ void sphereCollisionTest() {
     auto tm = TimeManagerShim{elapsedTime, deltaTime};
     Physics::timeManager = &tm;
 
-    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}, false};
+    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
 
-    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}, false};
+    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}};
 
     float maxVelocity = 0;
 
@@ -84,8 +84,8 @@ void collisionTest() {
 
     std::vector<Physics::Collider*> colliders;
 
-    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}, false};
-    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}, false};
+    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
+    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}};
     Physics::SimplePlaneCollider planeCollider1{0};
 
     colliders.push_back(&sphereCollider1);
