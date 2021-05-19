@@ -31,9 +31,13 @@ public:
 
 #if __cpp_concepts >= 201907L
 bool Collides(const std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
+void ApplyCollisionToFirst(std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 #else
 template<typename T, typename U>
 bool Collides(const T&, const U&);
+
+template<typename T, typename U>
+void ApplyCollisionToFirst(T&, const U&);
 #endif
 
 
@@ -41,33 +45,48 @@ class CollisionDispatcher {
 public:
     CollisionDispatcher(const char* name) : name{name} {}
 
-    virtual bool Dispatch(const SimplePlaneCollider&) const = 0;
-    virtual bool Dispatch(const SimpleCubeCollider&) const = 0;
-    virtual bool Dispatch(const SphereCollider&) const = 0;
+    virtual bool DispatchCollides(const SimplePlaneCollider&) const = 0;
+    virtual bool DispatchCollides(const SimpleCubeCollider&) const = 0;
+    virtual bool DispatchCollides(const SphereCollider&) const = 0;
+
+    virtual void DispatchApply(SimplePlaneCollider&) const = 0;
+    virtual void DispatchApply(SimpleCubeCollider&) const = 0;
+    virtual void DispatchApply(SphereCollider&) const = 0;
 
     const char* name;
 };
 
 template<typename Collider>
 class DispatcherCreator : public CollisionDispatcher {
-    const Collider* thisCollider;
+    Collider* thisCollider;
 public:
-    DispatcherCreator(const Collider* thisCollider) : CollisionDispatcher{Collider::name}, thisCollider{thisCollider} {}
+    DispatcherCreator(Collider* thisCollider) : CollisionDispatcher{Collider::name}, thisCollider{thisCollider} {}
     
-    bool Dispatch(const SimplePlaneCollider& other) const override {
+    bool DispatchCollides(const SimplePlaneCollider& other) const override {
         return Collides(*thisCollider, other);
     }
-    bool Dispatch(const SimpleCubeCollider& other) const override {
+    bool DispatchCollides(const SimpleCubeCollider& other) const override {
         return Collides(*thisCollider, other);
     }
-    bool Dispatch(const SphereCollider& other) const override {
+    bool DispatchCollides(const SphereCollider& other) const override {
         return Collides(*thisCollider, other);
+    }
+
+    void DispatchApply(SimplePlaneCollider& other) const override {
+        ApplyCollisionToFirst(other, *thisCollider);
+    }
+    void DispatchApply(SimpleCubeCollider& other) const override {
+        ApplyCollisionToFirst(other, *thisCollider);
+    }
+    void DispatchApply(SphereCollider& other) const override {
+        ApplyCollisionToFirst(other, *thisCollider);
     }
 };
 
 class Collider {
 protected:
     virtual const CollisionDispatcher& GetCollisionDispatcher() const = 0;
+    virtual CollisionDispatcher& GetCollisionDispatcher() = 0;
 public:
     glm::vec3 position = {};
     float size = 1;
@@ -78,6 +97,9 @@ public:
     constexpr std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const;
 
     virtual bool CollidesWith(const Collider&) const = 0;
+
+    // Updates velocity and position and applies collision detection
+    virtual void ApplyCollision(const Collider&) = 0;
 
     const char* GetName() const {
         return GetCollisionDispatcher().name;
@@ -96,11 +118,18 @@ class ColliderCreator : public Collider {
     const CollisionDispatcher& GetCollisionDispatcher() const override {
         return dispatcher;
     }
+    CollisionDispatcher& GetCollisionDispatcher() override {
+        return dispatcher;
+    }
 public:
     using Collider::Collider;
 
     bool CollidesWith(const Collider& other) const override {
-        return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().Dispatch(*static_cast<const T*>(this));
+        return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCollides(*static_cast<const T*>(this));
+    }
+
+    void ApplyCollision(const Collider& other) override {
+        static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchApply(*static_cast<T*>(this));
     }
 };
 
@@ -117,20 +146,13 @@ public:
     static constexpr const char* name = "SimpleCube";
 
     using ColliderCreator::ColliderCreator;
-
-    // Updates velocity and position and applies collision detection
-    void ApplyCollision(const SimplePlaneCollider& planeCollider);
 };
 
 class SphereCollider : public ColliderCreator<SphereCollider> {
-    glm::vec3 SmallestY(const SphereCollider& otherSphere, glm::vec3 vec) const;
 public:
     static constexpr const char* name = "Sphere";
 
     using ColliderCreator::ColliderCreator;
-
-    // Updates velocity and position and applies collision detection
-    void ApplyCollision(const SphereCollider& otherSphere);
 };
 
 void collideAll(const std::vector<Collider*>& colliders);

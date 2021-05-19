@@ -92,7 +92,7 @@ void collisionTest() {
     colliders.push_back(&sphereCollider2);
     colliders.push_back(&planeCollider1);
 
-    collideAll(colliders);
+    //collideAll(colliders);
 }
 
 int main() {
