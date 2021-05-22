@@ -42,6 +42,8 @@ void ApplyCollisionToFirst(T&, const U&);
 
 
 class CollisionDispatcher {
+protected:
+    ~CollisionDispatcher() = default;
 public:
     CollisionDispatcher(const char* name) : name{name} {}
 
@@ -104,6 +106,8 @@ public:
     const char* GetName() const {
         return GetCollisionDispatcher().name;
     }
+
+    virtual ~Collider() = default;
 };
 
 template<typename T>
