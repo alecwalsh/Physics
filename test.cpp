@@ -6,82 +6,74 @@
 
 #include <iostream>
 
+#include <gtest/gtest.h>
+
+// Create an empty file with the same name as the executable suffixed with ".is_google_test" to make Visual Studio's Google Test support discover the tests
+
 std::ostream& operator<<(std::ostream& os, glm::vec3 vec) {
     os << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
     return os;
 }
 
-double timeStep = 1 / 60.0;
-int secondsToRun = 5;
-
-void cubeCollisionTest() {
-    std::cout << "Testing cube collision" << std::endl;
+class CollisionTestsFixture : public ::testing::Test {
+    double timeStep = 1 / 60.0;
+    int secondsToRun = 5;
 
     double elapsedTime = 0;
     double deltaTime = timeStep;
 
-    auto tm = TimeManagerShim{elapsedTime, deltaTime};
-    Physics::timeManager = &tm;
+    TimeManagerShim tm{elapsedTime, deltaTime};
+protected:
+    float genericCollisionTest(Physics::Collider& collider1, const Physics::Collider& collider2) {
+        float maxVelocity = 0;
 
-    Physics::SimpleCubeCollider cubeCollider1{{0, 10, 0}, 1, {}};
+        while(Physics::timeManager->elapsedTime < secondsToRun) {
+            collider1.ApplyCollision(collider2);
 
-    Physics::SimplePlaneCollider planeCollider{0};
+            maxVelocity = std::max(maxVelocity, glm::length(collider1.velocity));
 
-    float maxVelocity = 0;
+            Physics::timeManager->elapsedTime += timeStep;
+        }
 
-    while(tm.elapsedTime < secondsToRun) {
-        cubeCollider1.ApplyCollision(planeCollider);
-
-        maxVelocity = std::max(maxVelocity, glm::length(cubeCollider1.velocity));
-
-        Physics::timeManager->elapsedTime += timeStep;
+        return maxVelocity;
     }
+
+    void SetUp() override {
+        Physics::timeManager = &tm;
+    }
+
+    void TearDown() override {
+        Physics::timeManager = nullptr;
+    }
+};
+
+TEST_F(CollisionTestsFixture, cubeCollisionTest) {
+    Physics::SimpleCubeCollider collider1{{0, 10, 0}, 1, {}};
+
+    Physics::SimplePlaneCollider collider2{0};
+
+    float maxVelocity = genericCollisionTest(collider1, collider2);
 
     glm::vec3 correctFinalPosition = {0, 0.5, 0};
 
-    assert(cubeCollider1.position == correctFinalPosition);
-    assert(maxVelocity == 13.7339916F);
+    ASSERT_EQ(collider1.position, correctFinalPosition);
+    ASSERT_EQ(maxVelocity, 13.7339916F);
 }
 
-void sphereCollisionTest() {
-    std::cout << "Testing sphere collision" << std::endl;
+TEST_F(CollisionTestsFixture, sphereCollisionTest) {
+    Physics::SphereCollider collider1{{0, 40, 0}, 2, {}};
 
-    double elapsedTime = 0;
-    double deltaTime = timeStep;
+    Physics::SphereCollider collider2{{0, 5, 0}, 2, {}};
 
-    auto tm = TimeManagerShim{elapsedTime, deltaTime};
-    Physics::timeManager = &tm;
-
-    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
-
-    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}};
-
-    float maxVelocity = 0;
-
-    while (tm.elapsedTime < secondsToRun) {
-        sphereCollider1.ApplyCollision(sphereCollider2);
-
-        maxVelocity = std::max(maxVelocity, glm::length(sphereCollider1.velocity));
-
-        Physics::timeManager->elapsedTime += timeStep;
-    }
+    float maxVelocity = genericCollisionTest(collider1, collider2);
 
     glm::vec3 correctFinalPosition = {0, 7, 0};
 
-    assert(sphereCollider1.position == correctFinalPosition);
-    assert(maxVelocity == 25.5059795F);
+    ASSERT_EQ(collider1.position, correctFinalPosition);
+    ASSERT_EQ(maxVelocity, 25.5059795F);
 }
 
-void collisionTest() {
-    cubeCollisionTest();
-    sphereCollisionTest();
-
-    double elapsedTime = 0;
-    double deltaTime = timeStep;
-
-    auto tm = TimeManagerShim{elapsedTime, deltaTime};
-    Physics::timeManager = &tm;
-
+TEST_F(CollisionTestsFixture, collideAllTest) {
     std::vector<Physics::Collider*> colliders;
 
     Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
@@ -93,15 +85,4 @@ void collisionTest() {
     colliders.push_back(&planeCollider1);
 
     //collideAll(colliders);
-}
-
-int main() {
-    std::cout << "Hello Physics" << std::endl;
-    std::cout << "Version: " << Physics::PROJECT_VERSION << std::endl;
-
-    //Physics::addToUI = [] (auto){};
-
-    collisionTest();
-
-    return 0;
 }

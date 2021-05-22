@@ -42,7 +42,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(glfwogltest2_physics PUBLIC DEBUG)
 endif()
 
+find_package(GTest CONFIG REQUIRED)
 
 add_executable(glfwogltest2_physics_test test.cpp)
 
-target_link_libraries(glfwogltest2_physics_test PRIVATE glfwogltest2_physics)
+target_link_libraries(glfwogltest2_physics_test PRIVATE glfwogltest2_physics GTest::gtest_main)
+
+include(CTest)
+include(GoogleTest)
+gtest_discover_tests(glfwogltest2_physics_test)
