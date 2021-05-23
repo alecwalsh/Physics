@@ -1,6 +1,6 @@
-#include "Collision.hpp"
+#include <Physics/Collision.hpp>
 
-#include "config.hpp"
+#include <Physics/config.hpp>
 
 #include <glm/geometric.hpp>
 
