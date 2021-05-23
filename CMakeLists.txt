@@ -5,8 +5,6 @@ project(glfwogltest2_physics VERSION 0.0.0.1)
 file(GLOB SOURCES "*.cpp")
 file(GLOB HEADERS "include/*.hpp")
 
-list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/test.cpp")
-
 set(SOURCES ${SOURCES} ${HEADERS})
 
 add_library(glfwogltest2_physics ${SOURCES})
@@ -30,7 +28,7 @@ target_include_directories(glfwogltest2_physics PUBLIC "include")
 target_link_libraries(glfwogltest2_physics PUBLIC glm::glm)
 
 if(UNIX)
-    target_link_libraries(glfwogltest2 PRIVATE stdc++fs) # Need to link with stdc++fs for std::filesystem support on some older compilers
+    target_link_libraries(glfwogltest2_physics PRIVATE stdc++fs) # Need to link with stdc++fs for std::filesystem support on some older compilers
 endif()
 
 #TODO: Use correct visibility in this file, instead of just PUBLIC
@@ -42,12 +40,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(glfwogltest2_physics PUBLIC DEBUG)
 endif()
 
-find_package(GTest CONFIG REQUIRED)
 
-add_executable(glfwogltest2_physics_test test.cpp)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+endif()
 
-target_link_libraries(glfwogltest2_physics_test PRIVATE glfwogltest2_physics GTest::gtest_main)
-
-include(CTest)
-include(GoogleTest)
-gtest_discover_tests(glfwogltest2_physics_test)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
