@@ -86,3 +86,18 @@ TEST_F(CollisionTestsFixture, collideAllTest) {
 
     //collideAll(colliders);
 }
+
+Physics::SimpleCubeCollider CreateCube(glm::vec3 position, float size) {
+    return {position, size, {}};
+}
+
+TEST_F(CollisionTestsFixture, CubesCollideSimpleTest) {
+    EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 9, 0}, 1))); // Barely touching
+    EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 10, 0}, 1))); // Identical cubes
+
+    EXPECT_FALSE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 9, 0}, 0.99)));
+    EXPECT_FALSE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 8, 0}, 1)));
+
+    EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 10.75f, 0}, 1)));
+    EXPECT_TRUE(CreateCube({0, 10, 0}, 2).CollidesWith(CreateCube({0, 10.5, 0}, 0.25))); // One cube inside another
+}
