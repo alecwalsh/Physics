@@ -136,30 +136,31 @@ namespace {
     }
 }
 
-#define IMPL_APPLY_COLLISION_DEFAULT(Type1, Type2) \
+#define IMPLEMENT(Type1, Type2) \
+    void ApplyCollisionImpl(Type1& collider1, const Type2& collider2) { \
+        ApplyCollision(collider1, collider2); \
+    }
+
+#define NOTIMPLEMENTED(Type1, Type2) \
     void ApplyCollisionImpl(Type1& collider1, const Type2& collider2) { \
         throw NotImplementedException{collider1, collider2}; \
     }
 
-    IMPL_APPLY_COLLISION_DEFAULT(SimplePlaneCollider, SimplePlaneCollider);
-    IMPL_APPLY_COLLISION_DEFAULT(SimplePlaneCollider, SimpleCubeCollider);
-    IMPL_APPLY_COLLISION_DEFAULT(SimplePlaneCollider, SphereCollider);
+    NOTIMPLEMENTED(SimplePlaneCollider, SimplePlaneCollider);
+    NOTIMPLEMENTED(SimplePlaneCollider, SimpleCubeCollider);
+    NOTIMPLEMENTED(SimplePlaneCollider, SphereCollider);
 
-    void ApplyCollisionImpl(SimpleCubeCollider& collider1, const SimplePlaneCollider& collider2) {
-        ApplyCollision(collider1, collider2);
-    }
-    IMPL_APPLY_COLLISION_DEFAULT(SimpleCubeCollider, SimpleCubeCollider);
-    IMPL_APPLY_COLLISION_DEFAULT(SimpleCubeCollider, SphereCollider);
 
-    void ApplyCollisionImpl(SphereCollider& collider1, const SimplePlaneCollider& collider2) {
-        ApplyCollision(collider1, collider2);
-    }
-    IMPL_APPLY_COLLISION_DEFAULT(SphereCollider, SimpleCubeCollider);
-    void ApplyCollisionImpl(SphereCollider& collider1, const SphereCollider& collider2) {
-        ApplyCollision(collider1, collider2);
-    }
+    IMPLEMENT(SimpleCubeCollider, SimplePlaneCollider)
+    NOTIMPLEMENTED(SimpleCubeCollider, SimpleCubeCollider);
+    NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
 
-#undef IMPL_APPLY_COLLISION_DEFAULT
+    IMPLEMENT(SphereCollider, SimplePlaneCollider)
+    NOTIMPLEMENTED(SphereCollider, SimpleCubeCollider);
+    IMPLEMENT(SphereCollider, SphereCollider)
+
+#undef IMPLEMENT
+#undef NOTIMPLEMENTED
 
 
 
