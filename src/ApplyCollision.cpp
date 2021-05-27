@@ -4,7 +4,39 @@
 
 namespace Physics {
 
-namespace detail {
+namespace {
+    void ApplyCollision(SphereCollider& collider1, const SimplePlaneCollider& planeCollider) {
+        float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
+
+        if(collider1.CollidesWith(planeCollider)) {
+            // Is currently colliding with the floor
+            collider1.velocity.y = 0;
+        }
+        else {
+            auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
+
+            //addToUI([distance, velocity] {
+            //    ImGui::Text("Physics info:");
+            //    ImGui::Text("velocity: %f, %f, %f", velocity.x, velocity.y, velocity.z);
+            //    ImGui::Text("distance: %f, %f, %f", distance.x, distance.y, distance.z);
+            //    ImGui::NewLine();
+            //});
+
+            auto newCollider = collider1;
+            newCollider.position = newPosition;
+            newCollider.velocity = newVelocity;
+            // Is not currently colliding with the floor
+            if(newCollider.CollidesWith(planeCollider)) {
+                // The new height will collide with the floor
+                // Set distance so that the new height is exactly at the floor
+
+                //distance.y = planeCollider.height - position.y + size / 2;
+                newCollider.position.y = planeCollider.position.y + collider1.size / 2;
+            }
+
+            collider1 = newCollider;
+        }
+    }
     void ApplyCollision(SimpleCubeCollider& collider1, const SimplePlaneCollider& planeCollider) {
         float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
@@ -114,15 +146,17 @@ namespace detail {
     IMPL_APPLY_COLLISION_DEFAULT(SimplePlaneCollider, SphereCollider);
 
     void ApplyCollisionImpl(SimpleCubeCollider& collider1, const SimplePlaneCollider& collider2) {
-        detail::ApplyCollision(collider1, collider2);
+        ApplyCollision(collider1, collider2);
     }
     IMPL_APPLY_COLLISION_DEFAULT(SimpleCubeCollider, SimpleCubeCollider);
     IMPL_APPLY_COLLISION_DEFAULT(SimpleCubeCollider, SphereCollider);
 
-    IMPL_APPLY_COLLISION_DEFAULT(SphereCollider, SimplePlaneCollider);
+    void ApplyCollisionImpl(SphereCollider& collider1, const SimplePlaneCollider& collider2) {
+        ApplyCollision(collider1, collider2);
+    }
     IMPL_APPLY_COLLISION_DEFAULT(SphereCollider, SimpleCubeCollider);
     void ApplyCollisionImpl(SphereCollider& collider1, const SphereCollider& collider2) {
-        detail::ApplyCollision(collider1, collider2);
+        ApplyCollision(collider1, collider2);
     }
 
 #undef IMPL_APPLY_COLLISION_DEFAULT
