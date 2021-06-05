@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <utility>
+#include <type_traits>
 
 #if __cpp_concepts >= 201907L
 #include <concepts>
@@ -32,14 +33,21 @@ public:
 #if __cpp_concepts >= 201907L
 bool Collides(const std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 void ApplyCollisionToFirst(std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
+
+// Returns true if collision checking between the types is implemented
+template<std::derived_from<Collider> T, std::derived_from<Collider> U>
+bool SupportsCollision() noexcept;
 #else
 template<typename T, typename U>
 bool Collides(const T&, const U&);
 
 template<typename T, typename U>
 void ApplyCollisionToFirst(T&, const U&);
-#endif
 
+// Returns true if collision checking between the types is implemented
+template<typename T, typename U>
+bool SupportsCollision() noexcept;
+#endif
 
 class CollisionDispatcher {
 protected:
@@ -54,6 +62,10 @@ public:
     virtual void DispatchApply(SimplePlaneCollider&) const = 0;
     virtual void DispatchApply(SimpleCubeCollider&) const = 0;
     virtual void DispatchApply(SphereCollider&) const = 0;
+
+    virtual bool DispatchCanCollide(const SimplePlaneCollider&) const noexcept = 0;
+    virtual bool DispatchCanCollide(const SimpleCubeCollider&) const noexcept = 0;
+    virtual bool DispatchCanCollide(const SphereCollider&) const noexcept = 0;
 
     const char* name;
 };
@@ -83,6 +95,19 @@ public:
     void DispatchApply(SphereCollider& other) const override {
         ApplyCollisionToFirst(other, *thisCollider);
     }
+
+    bool DispatchCanCollide(const SimplePlaneCollider& other) const noexcept override {
+        using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
+        return SupportsCollision<Collider, OtherType>();
+    }
+    bool DispatchCanCollide(const SimpleCubeCollider& other) const noexcept override {
+        using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
+        return SupportsCollision<Collider, OtherType>();
+    }
+    bool DispatchCanCollide(const SphereCollider& other) const noexcept override {
+        using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
+        return SupportsCollision<Collider, OtherType>();
+    }
 };
 
 class Collider {
@@ -97,6 +122,9 @@ public:
     Collider(glm::vec3 position, float size, glm::vec3 velocity);
 
     constexpr std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const;
+
+    // Returns true if collision checking between this type and other's type is implemented
+    virtual bool SupportsCollisionWith(const Collider& other) const noexcept = 0;
 
     virtual bool CollidesWith(const Collider&) const = 0;
 
@@ -127,6 +155,10 @@ class ColliderCreator : public Collider {
     }
 public:
     using Collider::Collider;
+
+    bool SupportsCollisionWith(const Collider& other) const noexcept override {
+        return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCanCollide(*static_cast<const T*>(this));
+    }
 
     bool CollidesWith(const Collider& other) const override {
         return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCollides(*static_cast<const T*>(this));

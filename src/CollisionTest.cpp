@@ -2,6 +2,9 @@
 
 #include <glm/geometric.hpp>
 
+#include <type_traits>
+#include <utility>
+
 namespace Physics {
 
     namespace {
@@ -27,37 +30,76 @@ namespace Physics {
         }
     }
 
+    namespace {
+        template<typename T, typename U>
+        struct SupportsCollisionImpl;
+
+        template<typename T, typename U, typename = void>
+        struct IsDefined : std::false_type {};
+
+        template<typename T, typename U>
+        struct IsDefined<T, U, std::void_t<decltype(SupportsCollisionImpl<T, U>::value)>> : std::true_type {};
+    }
+
+#if __cpp_concepts >= 201907L
+    template<std::derived_from<Collider> T, std::derived_from<Collider> U>
+    bool SupportsCollision() noexcept {
+#else
+    template<typename T, typename U>
+    bool SupportsCollision() noexcept {
+#endif
+        if constexpr(IsDefined<T, U>::value) {
+            return SupportsCollisionImpl<T, U>::value;
+        } else {
+            return SupportsCollisionImpl<U, T>::value;
+        }
+    }
+
+// TODO: Find a better solution than these ugly macros
+
+#define IMPLEMENT(Type1, Type2) \
+    namespace { \
+        template<> struct SupportsCollisionImpl<Type1, Type2> { static constexpr bool value = true; };\
+    } \
+    template bool SupportsCollision<Type1, Type2>() noexcept; \
+    template bool SupportsCollision<Type2, Type1>() noexcept; \
+    bool CollidesImpl::operator()(const Type1& collider1, const Type2& collider2)
+
 #define NOTIMPLEMENTED(Type1, Type2) \
     bool CollidesImpl::operator()(const Type1& collider1, const Type2& collider2) { \
         throw NotImplementedException{collider1, collider2}; \
-    }
-
+    } \
+    namespace { \
+        template<> struct SupportsCollisionImpl<Type1, Type2> { static constexpr bool value = false; };\
+    } \
+    template bool SupportsCollision<Type1, Type2>() noexcept; \
+    template bool SupportsCollision<Type2, Type1>() noexcept;
 
     NOTIMPLEMENTED(SimplePlaneCollider, SimplePlaneCollider);
 
-    bool CollidesImpl::operator()(const SimplePlaneCollider& collider1, const SimpleCubeCollider& collider2) {
+    IMPLEMENT(SimplePlaneCollider, SimpleCubeCollider) {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
         return (height - collider2.size / 2) <= planeHeight && (height + collider2.size / 2) >= planeHeight;
     }
 
-    bool CollidesImpl::operator()(const SimplePlaneCollider& collider1, const SphereCollider& collider2) {
+    IMPLEMENT(SimplePlaneCollider, SphereCollider) {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
         return (height - collider2.size / 2) <= planeHeight && (height + collider2.size / 2) >= planeHeight;
     }
 
-    bool CollidesImpl::operator()(const SimpleCubeCollider& collider1, const SimpleCubeCollider& collider2) {
+    IMPLEMENT(SimpleCubeCollider, SimpleCubeCollider) {
         return CubesCollideSimple(collider1, collider2);
     }
     NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
 
-    bool CollidesImpl::operator()(const SphereCollider& collider1, const SphereCollider& collider2) {
+    IMPLEMENT(SphereCollider, SphereCollider) {
         return glm::length(collider1.position - collider2.position) <= (collider1.size + collider2.size) / 2;
     }
 
+#undef IMPLEMENT
 #undef NOTIMPLEMENTED
-
 }
