@@ -10,7 +10,7 @@
 
 // Create an empty file with the same name as the executable suffixed with ".is_google_test" to make Visual Studio's Google Test support discover the tests
 
-std::ostream& operator<<(std::ostream& os, glm::vec3 vec) {
+static std::ostream& operator<<(std::ostream& os, glm::vec3 vec) {
     os << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
     return os;
 }
@@ -24,7 +24,7 @@ class CollisionTestsFixture : public ::testing::Test {
 
     TimeManagerShim tm{elapsedTime, deltaTime};
 protected:
-    float genericCollisionTest(Physics::Collider& collider1, const Physics::Collider& collider2) {
+    float GenericCollisionTest(Physics::Collider& collider1, const Physics::Collider& collider2) {
         float maxVelocity = 0;
 
         while(Physics::timeManager->elapsedTime < secondsToRun) {
@@ -47,12 +47,12 @@ protected:
     }
 };
 
-TEST_F(CollisionTestsFixture, cubeCollisionTest) {
+TEST_F(CollisionTestsFixture, CubePlaneCollisionTest) {
     Physics::SimpleCubeCollider collider1{{0, 10, 0}, 1, {}};
 
     Physics::SimplePlaneCollider collider2{0};
 
-    float maxVelocity = genericCollisionTest(collider1, collider2);
+    float maxVelocity = GenericCollisionTest(collider1, collider2);
 
     glm::vec3 correctFinalPosition = {0, 0.5, 0};
 
@@ -60,12 +60,12 @@ TEST_F(CollisionTestsFixture, cubeCollisionTest) {
     EXPECT_EQ(maxVelocity, 13.7339916F);
 }
 
-TEST_F(CollisionTestsFixture, sphereCollisionTest) {
+TEST_F(CollisionTestsFixture, SphereSphereCollisionTest) {
     Physics::SphereCollider collider1{{0, 40, 0}, 2, {}};
 
     Physics::SphereCollider collider2{{0, 5, 0}, 2, {}};
 
-    float maxVelocity = genericCollisionTest(collider1, collider2);
+    float maxVelocity = GenericCollisionTest(collider1, collider2);
 
     glm::vec3 correctFinalPosition = {0, 7, 0};
 
@@ -73,7 +73,7 @@ TEST_F(CollisionTestsFixture, sphereCollisionTest) {
     EXPECT_EQ(maxVelocity, 25.5059795F);
 }
 
-TEST_F(CollisionTestsFixture, collideAllTest) {
+TEST_F(CollisionTestsFixture, CollideAllTest) {
     std::vector<Physics::Collider*> colliders;
 
     Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
