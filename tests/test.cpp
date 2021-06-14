@@ -73,6 +73,19 @@ TEST_F(CollisionTestsFixture, SphereSphereCollisionTest) {
     EXPECT_EQ(maxVelocity, 25.5059795F);
 }
 
+TEST_F(CollisionTestsFixture, SpherePlaneCollisionTest) {
+    Physics::SphereCollider collider1{{0, 40, 0}, 2, {}};
+
+    Physics::SimplePlaneCollider collider2{0};
+
+    float maxVelocity = GenericCollisionTest(collider1, collider2);
+
+    glm::vec3 correctFinalPosition = {0, 1, 0};
+
+    EXPECT_EQ(collider1.position, correctFinalPosition);
+    EXPECT_EQ(maxVelocity, 27.7949772F);
+}
+
 TEST_F(CollisionTestsFixture, CollideAllTest) {
     std::vector<Physics::Collider*> colliders;
 
