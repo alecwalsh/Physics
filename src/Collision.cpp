@@ -6,9 +6,6 @@
 #include <sstream>
 #include <type_traits>
 
-//#include "imgui.h"
-//TODO: Figure out how to support adding to the UI from within this project
-
 namespace Physics {
 
 std::string NotImplementedException::CreateExceptionText(const Collider& collider1, const Collider& collider2) const {
@@ -71,7 +68,7 @@ template void ApplyCollisionToFirst<Type1, Type2>(Type1&, const Type2&);
 Collider::Collider(glm::vec3 position, float size, glm::vec3 velocity) : 
     position{position}, size{size}, velocity{velocity} {}
 
-constexpr std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const {
+constexpr std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const noexcept {
     float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
     const auto& acceleration = earthGravityVector;
 
@@ -102,5 +99,4 @@ void collideAll(const std::vector<Collider*>& colliders) {
         }
     }
 }
-
 } // namespace Physics

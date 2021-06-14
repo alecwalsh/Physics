@@ -15,13 +15,6 @@ namespace {
         else {
             auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-            //addToUI([distance, velocity] {
-            //    ImGui::Text("Physics info:");
-            //    ImGui::Text("velocity: %f, %f, %f", velocity.x, velocity.y, velocity.z);
-            //    ImGui::Text("distance: %f, %f, %f", distance.x, distance.y, distance.z);
-            //    ImGui::NewLine();
-            //});
-
             auto newCollider = collider1;
             newCollider.position = newPosition;
             newCollider.velocity = newVelocity;
@@ -30,7 +23,6 @@ namespace {
                 // The new height will collide with the floor
                 // Set distance so that the new height is exactly at the floor
 
-                //distance.y = planeCollider.height - position.y + size / 2;
                 newCollider.position.y = planeCollider.position.y + collider1.size / 2;
             }
 
@@ -47,13 +39,6 @@ namespace {
         else {
             auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-            //addToUI([distance, velocity] {
-            //    ImGui::Text("Physics info:");
-            //    ImGui::Text("velocity: %f, %f, %f", velocity.x, velocity.y, velocity.z);
-            //    ImGui::Text("distance: %f, %f, %f", distance.x, distance.y, distance.z);
-            //    ImGui::NewLine();
-            //});
-
             auto newCollider = collider1;
             newCollider.position = newPosition;
             newCollider.velocity = newVelocity;
@@ -62,7 +47,6 @@ namespace {
                 // The new height will collide with the floor
                 // Set distance so that the new height is exactly at the floor
 
-                //distance.y = planeCollider.height - position.y + size / 2;
                 newCollider.position.y = planeCollider.position.y + collider1.size / 2;
             }
 
@@ -73,7 +57,7 @@ namespace {
     // Applying vec to this sphere results in an intersection
     // This function finds the value for vec.y that makes the spheres touch, but not intersect
     // TODO: Use x, y, and z instead of just y
-    glm::vec3 SmallestY(const SphereCollider& thisSphere, const SphereCollider& otherSphere, glm::vec3 vec) {
+    glm::vec3 SmallestY(const SphereCollider& thisSphere, const SphereCollider& otherSphere, glm::vec3 vec) noexcept {
         using std::pow, std::abs, std::sqrt;
 
         auto dist2 = pow((thisSphere.size + otherSphere.size) / 2, 2);
@@ -115,13 +99,6 @@ namespace {
             // Is not currently colliding with the other sphere
             auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-            //addToUI([distance, velocity] {
-            //    ImGui::Text("Physics info:");
-            //    ImGui::Text("velocity: %f, %f, %f", velocity.x, velocity.y, velocity.z);
-            //    ImGui::Text("distance: %f, %f, %f", distance.x, distance.y, distance.z);
-            //    ImGui::NewLine();
-            //});
-
             auto newCollider = collider1;
             newCollider.position = newPosition;
             newCollider.velocity = newVelocity;
@@ -161,7 +138,4 @@ namespace {
 
 #undef IMPLEMENT
 #undef NOTIMPLEMENTED
-
-
-
 }

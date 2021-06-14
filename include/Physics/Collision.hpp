@@ -2,7 +2,6 @@
 
 #include <glm/vec3.hpp>
 
-//#include <functional>
 #include <vector>
 #include <stdexcept>
 #include <utility>
@@ -112,8 +111,8 @@ public:
 
 class Collider {
 protected:
-    virtual const CollisionDispatcher& GetCollisionDispatcher() const = 0;
-    virtual CollisionDispatcher& GetCollisionDispatcher() = 0;
+    virtual const CollisionDispatcher& GetCollisionDispatcher() const noexcept = 0;
+    virtual CollisionDispatcher& GetCollisionDispatcher() noexcept = 0;
 public:
     glm::vec3 position = {};
     float size = 1;
@@ -121,7 +120,7 @@ public:
 
     Collider(glm::vec3 position, float size, glm::vec3 velocity);
 
-    constexpr std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const;
+    constexpr std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const noexcept;
 
     // Returns true if collision checking between this type and other's type is implemented
     virtual bool SupportsCollisionWith(const Collider& other) const noexcept = 0;
@@ -147,10 +146,10 @@ class ColliderCreator : public Collider {
 
     Dispatcher dispatcher{static_cast<T*>(this)};
 
-    const CollisionDispatcher& GetCollisionDispatcher() const override {
+    const CollisionDispatcher& GetCollisionDispatcher() const noexcept override {
         return dispatcher;
     }
-    CollisionDispatcher& GetCollisionDispatcher() override {
+    CollisionDispatcher& GetCollisionDispatcher() noexcept override {
         return dispatcher;
     }
 public:
@@ -197,7 +196,4 @@ constexpr float earthGravity = 9.81f;
 constexpr glm::vec3 earthGravityVector = {0, -earthGravity, 0};
 
 inline TimeManagerShim* timeManager;
-
-//inline std::function<void(std::function<void()>)> addToUI;
-
 };
