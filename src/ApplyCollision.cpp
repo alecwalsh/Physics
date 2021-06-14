@@ -11,47 +11,48 @@ namespace {
         if(collider1.CollidesWith(planeCollider)) {
             // Is currently colliding with the floor
             collider1.velocity.y = 0;
+            return;
         }
-        else {
-            auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-            auto newCollider = collider1;
-            newCollider.position = newPosition;
-            newCollider.velocity = newVelocity;
-            // Is not currently colliding with the floor
-            if(newCollider.CollidesWith(planeCollider)) {
-                // The new height will collide with the floor
-                // Set distance so that the new height is exactly at the floor
+        auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-                newCollider.position.y = planeCollider.position.y + collider1.size / 2;
-            }
+        auto newCollider = collider1;
+        newCollider.position = newPosition;
+        newCollider.velocity = newVelocity;
+        // Is not currently colliding with the floor
+        if(newCollider.CollidesWith(planeCollider)) {
+            // The new height will collide with the floor
+            // Set distance so that the new height is exactly at the floor
 
-            collider1 = newCollider;
+            newCollider.position.y = planeCollider.position.y + collider1.size / 2;
         }
+
+        collider1 = newCollider;
     }
+
     void ApplyCollision(SimpleCubeCollider& collider1, const SimplePlaneCollider& planeCollider) {
         float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
         if(collider1.CollidesWith(planeCollider)) {
             // Is currently colliding with the floor
             collider1.velocity.y = 0;
+            return;
         }
-        else {
-            auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-            auto newCollider = collider1;
-            newCollider.position = newPosition;
-            newCollider.velocity = newVelocity;
-            // Is not currently colliding with the floor
-            if(newCollider.CollidesWith(planeCollider)) {
-                // The new height will collide with the floor
-                // Set distance so that the new height is exactly at the floor
+        auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-                newCollider.position.y = planeCollider.position.y + collider1.size / 2;
-            }
+        auto newCollider = collider1;
+        newCollider.position = newPosition;
+        newCollider.velocity = newVelocity;
+        // Is not currently colliding with the floor
+        if(newCollider.CollidesWith(planeCollider)) {
+            // The new height will collide with the floor
+            // Set distance so that the new height is exactly at the floor
 
-            collider1 = newCollider;
+            newCollider.position.y = planeCollider.position.y + collider1.size / 2;
         }
+
+        collider1 = newCollider;
     }
 
     // Applying vec to this sphere results in an intersection
@@ -93,23 +94,23 @@ namespace {
         if(collider1.CollidesWith(otherSphere)) {
             // Is currently colliding with the other sphere
             collider1.velocity.y = 0;
+            return;
         }
-        else {
-            // TODO: Don't apply full velocity here because the sphere is only moving partway through distance
-            // Is not currently colliding with the other sphere
-            auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-            auto newCollider = collider1;
-            newCollider.position = newPosition;
-            newCollider.velocity = newVelocity;
+        // TODO: Don't apply full velocity here because the sphere is only moving partway through distance
+        // Is not currently colliding with the other sphere
+        auto [newPosition, newVelocity] = collider1.CalculatePositionAndVelocity();
 
-            if(newCollider.CollidesWith(otherSphere)) {
-                // The new position will collide with the other sphere
-                newCollider.position = collider1.position + SmallestY(collider1, otherSphere, newPosition - collider1.position);
-            }
+        auto newCollider = collider1;
+        newCollider.position = newPosition;
+        newCollider.velocity = newVelocity;
 
-            collider1 = newCollider;
+        if(newCollider.CollidesWith(otherSphere)) {
+            // The new position will collide with the other sphere
+            newCollider.position = collider1.position + SmallestY(collider1, otherSphere, newPosition - collider1.position);
         }
+
+        collider1 = newCollider;
     }
 }
 
