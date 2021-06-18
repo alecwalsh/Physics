@@ -173,7 +173,6 @@ class SimplePlaneCollider : public ColliderCreator<SimplePlaneCollider> {
 public:
     static constexpr const char* name = "SimplePlane";
 
-    using ColliderCreator::ColliderCreator;
     SimplePlaneCollider(float height) : ColliderCreator{{0, height, 0}, 1, {}} {}
 };
 
