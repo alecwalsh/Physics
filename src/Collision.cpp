@@ -65,8 +65,11 @@ template void ApplyCollisionToFirst<Type1, Type2>(Type1&, const Type2&);
 
 #undef IMPL_COLLIDES
 
-Collider::Collider(glm::vec3 position, float size, glm::vec3 velocity) : 
+Collider::Collider(glm::vec3 position, glm::vec3 size, glm::vec3 velocity) :
     position{position}, size{size}, velocity{velocity} {}
+
+Collider::Collider(glm::vec3 position, float size, glm::vec3 velocity) : 
+    Collider{position, glm::vec3{size}, velocity} {}
 
 constexpr std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const noexcept {
     float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);

@@ -17,14 +17,14 @@ namespace Physics {
         }
 
         constexpr bool CubesCollideSimple(const Physics::SimpleCubeCollider& cube1, const Physics::SimpleCubeCollider& cube2) {
-            const auto& position1 = cube1.position;
-            float size1 = cube1.size;
-            const auto& position2 = cube2.position;
-            float size2 = cube2.size;
+            auto position1 = cube1.position;
+            auto size1 = cube1.size;
+            auto position2 = cube2.position;
+            auto size2 = cube2.size;
 
-            bool xOverlap = CheckRanges(position1.x, size1, position2.x, size2);
-            bool yOverlap = CheckRanges(position1.y, size1, position2.y, size2);
-            bool zOverlap = CheckRanges(position1.z, size1, position2.z, size2);
+            bool xOverlap = CheckRanges(position1.x, size1.x, position2.x, size2.x);
+            bool yOverlap = CheckRanges(position1.y, size1.y, position2.y, size2.y);
+            bool zOverlap = CheckRanges(position1.z, size1.z, position2.z, size2.z);
 
             return xOverlap && yOverlap && zOverlap;
         }
@@ -81,14 +81,14 @@ namespace Physics {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
-        return (height - collider2.size / 2) <= planeHeight && (height + collider2.size / 2) >= planeHeight;
+        return (height - collider2.size.y / 2) <= planeHeight && (height + collider2.size.y / 2) >= planeHeight;
     }
 
     IMPLEMENT(SimplePlaneCollider, SphereCollider) {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
-        return (height - collider2.size / 2) <= planeHeight && (height + collider2.size / 2) >= planeHeight;
+        return (height - collider2.size.y / 2) <= planeHeight && (height + collider2.size.y / 2) >= planeHeight;
     }
 
     IMPLEMENT(SimpleCubeCollider, SimpleCubeCollider) {
@@ -97,7 +97,7 @@ namespace Physics {
     NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
 
     IMPLEMENT(SphereCollider, SphereCollider) {
-        return glm::length(collider1.position - collider2.position) <= (collider1.size + collider2.size) / 2;
+        return glm::length(collider1.position - collider2.position) <= (collider1.size.x + collider2.size.x) / 2;
     }
 
 #undef IMPLEMENT

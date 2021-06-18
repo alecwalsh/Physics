@@ -1,11 +1,14 @@
 #include "ApplyCollision.hpp"
 
 #include <cmath>
+#include <cassert>
 
 namespace Physics {
 
 namespace {
     void ApplyCollision(SphereCollider& collider1, const SimplePlaneCollider& planeCollider) {
+        assert(collider1.size.x == collider1.size.y && collider1.size.y == collider1.size.z);
+
         float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
         if(collider1.CollidesWith(planeCollider)) {
@@ -24,7 +27,7 @@ namespace {
             // The new height will collide with the floor
             // Set distance so that the new height is exactly at the floor
 
-            newCollider.position.y = planeCollider.position.y + collider1.size / 2;
+            newCollider.position.y = planeCollider.position.y + collider1.size.y / 2;
         }
 
         collider1 = newCollider;
@@ -49,7 +52,7 @@ namespace {
             // The new height will collide with the floor
             // Set distance so that the new height is exactly at the floor
 
-            newCollider.position.y = planeCollider.position.y + collider1.size / 2;
+            newCollider.position.y = planeCollider.position.y + collider1.size.y / 2;
         }
 
         collider1 = newCollider;
@@ -61,7 +64,7 @@ namespace {
     glm::vec3 SmallestY(const SphereCollider& thisSphere, const SphereCollider& otherSphere, glm::vec3 vec) noexcept {
         using std::pow, std::abs, std::sqrt;
 
-        auto dist2 = pow((thisSphere.size + otherSphere.size) / 2, 2);
+        auto dist2 = pow((thisSphere.size.x + otherSphere.size.x) / 2, 2);
 
         auto vecWithoutY = vec;
         vecWithoutY.y = 0;
@@ -89,6 +92,9 @@ namespace {
     }
 
     void ApplyCollision(SphereCollider& collider1, const SphereCollider& otherSphere) {
+        assert(collider1.size.x == collider1.size.y && collider1.size.y == collider1.size.z);
+        assert(otherSphere.size.x == otherSphere.size.y && otherSphere.size.y == otherSphere.size.z);
+
         float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
         if(collider1.CollidesWith(otherSphere)) {

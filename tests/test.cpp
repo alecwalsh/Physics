@@ -100,11 +100,16 @@ TEST_F(CollisionTestsFixture, CollideAllTest) {
     //collideAll(colliders);
 }
 
-Physics::SimpleCubeCollider CreateCube(glm::vec3 position, float size) {
+Physics::SimpleCubeCollider CreateCube(glm::vec3 position, glm::vec3 size) {
     return {position, size, {}};
 }
 
+Physics::SimpleCubeCollider CreateCube(glm::vec3 position, float size) {
+    return CreateCube(position, glm::vec3{size});
+}
+
 TEST_F(CollisionTestsFixture, CubesCollideSimpleTest) {
+    // Test cubes
     EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 9, 0}, 1))); // Barely touching
     EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 10, 0}, 1))); // Identical cubes
 
@@ -113,4 +118,17 @@ TEST_F(CollisionTestsFixture, CubesCollideSimpleTest) {
 
     EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 10.75f, 0}, 1)));
     EXPECT_TRUE(CreateCube({0, 10, 0}, 2).CollidesWith(CreateCube({0, 10.5, 0}, 0.25))); // One cube inside another
+
+    // Now test cuboids
+    EXPECT_TRUE(CreateCube({0, 0, 0}, {3,2,1}).CollidesWith(CreateCube({2, 0, 0}, {1,2,3}))); // Barely touching x axis
+    EXPECT_TRUE(CreateCube({0, 0, 0}, {3,2,1}).CollidesWith(CreateCube({0, -2, 0}, {1,2,3}))); // Barely touching y axis
+    EXPECT_TRUE(CreateCube({0, 0, 0}, {3,2,1}).CollidesWith(CreateCube({0, 0, -2}, {1,2,3}))); // Barely touching z axis
+
+    EXPECT_TRUE(CreateCube({0, 10, 0}, {3,2,1}).CollidesWith(CreateCube({0, 10, 0}, {3,2,1}))); // Identical cuboids
+
+    EXPECT_FALSE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 12.50, -2}, {1,0.99,1})));
+    EXPECT_FALSE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 13, -2}, 1)));
+
+    EXPECT_TRUE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 11, -2}, 1)));
+    EXPECT_TRUE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 11, -2}, 0.25))); // One cuboid inside another
 }

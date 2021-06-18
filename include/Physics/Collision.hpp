@@ -115,9 +115,10 @@ protected:
     virtual CollisionDispatcher& GetCollisionDispatcher() noexcept = 0;
 public:
     glm::vec3 position = {};
-    float size = 1;
+    glm::vec3 size = { 1, 1, 1 };
     glm::vec3 velocity = {};
 
+    Collider(glm::vec3 position, glm::vec3 size, glm::vec3 velocity);
     Collider(glm::vec3 position, float size, glm::vec3 velocity);
 
     constexpr std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const noexcept;
@@ -188,6 +189,9 @@ public:
     static constexpr const char* name = "Sphere";
 
     using ColliderCreator::ColliderCreator;
+
+    // Ellipsoids are not supported
+    SphereCollider(glm::vec3 position, glm::vec3 size, glm::vec3 velocity) = delete;
 };
 
 void collideAll(const std::vector<Collider*>& colliders);
