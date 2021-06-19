@@ -97,7 +97,11 @@ namespace Physics {
     NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
 
     IMPLEMENT(SphereCollider, SphereCollider) {
-        return glm::length(collider1.position - collider2.position) <= (collider1.size.x + collider2.size.x) / 2;
+        auto v = collider1.position - collider2.position;
+
+        auto r = (collider1.size + collider2.size).x / 2;
+
+        return glm::dot(v, v) <= r * r;
     }
 
 #undef IMPLEMENT
