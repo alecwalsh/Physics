@@ -121,7 +121,7 @@ public:
     Collider(glm::vec3 position, glm::vec3 size, glm::vec3 velocity);
     Collider(glm::vec3 position, float size, glm::vec3 velocity);
 
-    constexpr std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const noexcept;
+    std::pair<glm::vec3, glm::vec3> CalculatePositionAndVelocity() const noexcept;
 
     // Returns true if collision checking between this type and other's type is implemented
     virtual bool SupportsCollisionWith(const Collider& other) const noexcept = 0;
