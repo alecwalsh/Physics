@@ -108,27 +108,76 @@ Physics::SimpleCubeCollider CreateCube(glm::vec3 position, float size) {
     return CreateCube(position, glm::vec3{size});
 }
 
+bool Collides(const Physics::SimpleCubeCollider& cube1, const Physics::SimpleCubeCollider& cube2) {
+    return cube1.CollidesWith(cube2);
+}
+
+struct CubeNoVelocity {
+    glm::vec3 position;
+    glm::vec3 size;
+
+    CubeNoVelocity(glm::vec3 position, glm::vec3 size) : position{position}, size{size} {}
+    CubeNoVelocity(glm::vec3 position, float size) : CubeNoVelocity{position, glm::vec3{size}} {}
+};
+
+bool Collides(CubeNoVelocity cube1, CubeNoVelocity cube2) {
+    return Collides(CreateCube(cube1.position, cube1.size), CreateCube(cube2.position, cube2.size));
+}
+
 TEST_F(CollisionTestsFixture, CubesCollideSimpleTest) {
     // Test cubes
-    EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 9, 0}, 1))); // Barely touching
-    EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 10, 0}, 1))); // Identical cubes
+    EXPECT_TRUE(Collides( // Barely touching
+        {{0, 10, 0}, 1},
+        {{0, 9, 0}, 1}
+    ));
+    EXPECT_TRUE(Collides( // Identical cubes
+        {{0, 10, 0}, 1},
+        {{0, 10, 0}, 1}
+    ));
 
-    EXPECT_FALSE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 9, 0}, 0.99)));
-    EXPECT_FALSE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 8, 0}, 1)));
-
-    EXPECT_TRUE(CreateCube({0, 10, 0}, 1).CollidesWith(CreateCube({0, 10.75f, 0}, 1)));
-    EXPECT_TRUE(CreateCube({0, 10, 0}, 2).CollidesWith(CreateCube({0, 10.5, 0}, 0.25))); // One cube inside another
+    EXPECT_TRUE(Collides(
+        {{0, 10, 0}, 1},
+        {{0, 10.75f, 0}, 1}
+    ));
+    EXPECT_TRUE(Collides( // One cube inside another
+        {{0, 10, 0}, 2},
+        {{0, 10.5, 0}, 0.25}
+    ));
 
     // Now test cuboids
-    EXPECT_TRUE(CreateCube({0, 0, 0}, {3,2,1}).CollidesWith(CreateCube({2, 0, 0}, {1,2,3}))); // Barely touching x axis
-    EXPECT_TRUE(CreateCube({0, 0, 0}, {3,2,1}).CollidesWith(CreateCube({0, -2, 0}, {1,2,3}))); // Barely touching y axis
-    EXPECT_TRUE(CreateCube({0, 0, 0}, {3,2,1}).CollidesWith(CreateCube({0, 0, -2}, {1,2,3}))); // Barely touching z axis
+    EXPECT_TRUE(Collides( // Barely touching x axis
+        {{0, 0, 0}, {3,2,1}},
+        {{2, 0, 0}, {1,2,3}}
+    ));
+    EXPECT_TRUE(Collides( // Barely touching y axis
+        {{0, 0, 0}, {3,2,1}},
+        {{0, -2, 0}, {1,2,3}}
+    ));
+    EXPECT_TRUE(Collides( // Barely touching z axis
+        {{0, 0, 0}, {3,2,1}},
+        {{0, 0, -2}, {1,2,3}}
+    ));
 
-    EXPECT_TRUE(CreateCube({0, 10, 0}, {3,2,1}).CollidesWith(CreateCube({0, 10, 0}, {3,2,1}))); // Identical cuboids
+    EXPECT_TRUE(Collides( // Identical cuboids
+        {{0, 10, 0}, {3,2,1}},
+        {{0, 10, 0}, {3,2,1}}
+    ));
 
-    EXPECT_FALSE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 12.50, -2}, {1,0.99,1})));
-    EXPECT_FALSE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 13, -2}, 1)));
+    EXPECT_FALSE(Collides(
+        {{0, 10, 0}, {3,4,5}},
+        {{0.5, 12.50, -2}, {1,0.99,1}}
+    ));
+    EXPECT_FALSE(Collides(
+        {{0, 10, 0}, {3,4,5}},
+        {{0.5, 13, -2}, 1}
+    ));
 
-    EXPECT_TRUE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 11, -2}, 1)));
-    EXPECT_TRUE(CreateCube({0, 10, 0}, {3,4,5}).CollidesWith(CreateCube({0.5, 11, -2}, 0.25))); // One cuboid inside another
+    EXPECT_TRUE(Collides(
+        {{0, 10, 0}, {3,4,5}},
+        {{0.5, 11, -2}, 1}
+    ));
+    EXPECT_TRUE(Collides( // One cuboid inside another
+        {{0, 10, 0}, {3,4,5}},
+        {{0.5, 11, -2}, 0.25}
+    ));
 }
