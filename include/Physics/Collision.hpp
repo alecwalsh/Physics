@@ -69,11 +69,11 @@ public:
     const char* name;
 };
 
-template<typename Collider>
+template<typename ColliderType>
 class DispatcherCreator : public CollisionDispatcher {
-    Collider* thisCollider;
+    ColliderType* thisCollider;
 public:
-    DispatcherCreator(Collider* thisCollider) : CollisionDispatcher{Collider::name}, thisCollider{thisCollider} {}
+    DispatcherCreator(ColliderType* thisCollider) : CollisionDispatcher{ColliderType::name}, thisCollider{thisCollider} {}
     
     bool DispatchCollides(const SimplePlaneCollider& other) const override {
         return Collides(*thisCollider, other);
@@ -97,15 +97,15 @@ public:
 
     bool DispatchCanCollide(const SimplePlaneCollider& other) const noexcept override {
         using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
-        return SupportsCollision<Collider, OtherType>();
+        return SupportsCollision<ColliderType, OtherType>();
     }
     bool DispatchCanCollide(const SimpleCubeCollider& other) const noexcept override {
         using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
-        return SupportsCollision<Collider, OtherType>();
+        return SupportsCollision<ColliderType, OtherType>();
     }
     bool DispatchCanCollide(const SphereCollider& other) const noexcept override {
         using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
-        return SupportsCollision<Collider, OtherType>();
+        return SupportsCollision<ColliderType, OtherType>();
     }
 };
 
