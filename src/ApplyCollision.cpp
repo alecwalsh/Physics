@@ -12,7 +12,7 @@ namespace {
         float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
         if(collider1.CollidesWith(planeCollider)) {
-            // Is currently colliding with the floor
+            // Is currently colliding with the plane
             collider1.velocity.y = 0;
             return;
         }
@@ -22,12 +22,13 @@ namespace {
         auto newCollider = collider1;
         newCollider.position = newPosition;
         newCollider.velocity = newVelocity;
-        // Is not currently colliding with the floor
+        // Is not currently colliding with the plane
         if(newCollider.CollidesWith(planeCollider)) {
-            // The new height will collide with the floor
-            // Set distance so that the new height is exactly at the floor
+            // The new height will collide with the plane
+            // Set distance so that the new height is exactly at the plane
 
             newCollider.position.y = planeCollider.position.y + collider1.size.y / 2;
+            newCollider.velocity = {};
         }
 
         collider1 = newCollider;
@@ -37,7 +38,7 @@ namespace {
         float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
 
         if(collider1.CollidesWith(planeCollider)) {
-            // Is currently colliding with the floor
+            // Is currently colliding with the plane
             collider1.velocity.y = 0;
             return;
         }
@@ -47,12 +48,13 @@ namespace {
         auto newCollider = collider1;
         newCollider.position = newPosition;
         newCollider.velocity = newVelocity;
-        // Is not currently colliding with the floor
+        // Is not currently colliding with the plane
         if(newCollider.CollidesWith(planeCollider)) {
-            // The new height will collide with the floor
-            // Set distance so that the new height is exactly at the floor
+            // The new height will collide with the plane
+            // Set distance so that the new height is exactly at the plane
 
             newCollider.position.y = planeCollider.position.y + collider1.size.y / 2;
+            newCollider.velocity = {};
         }
 
         collider1 = newCollider;
@@ -114,6 +116,7 @@ namespace {
         if(newCollider.CollidesWith(otherSphere)) {
             // The new position will collide with the other sphere
             newCollider.position = collider1.position + SmallestY(collider1, otherSphere, newPosition - collider1.position);
+            newCollider.velocity = {};
         }
 
         collider1 = newCollider;

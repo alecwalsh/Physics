@@ -57,7 +57,7 @@ TEST_F(CollisionTestsFixture, CubePlaneCollisionTest) {
     glm::vec3 correctFinalPosition = {0, 0.5, 0};
 
     EXPECT_EQ(collider1.position, correctFinalPosition);
-    EXPECT_EQ(maxVelocity, 13.7339916F);
+    EXPECT_EQ(maxVelocity, 13.5704918F);
 }
 
 TEST_F(CollisionTestsFixture, SphereSphereCollisionTest) {
@@ -70,7 +70,7 @@ TEST_F(CollisionTestsFixture, SphereSphereCollisionTest) {
     glm::vec3 correctFinalPosition = {0, 7, 0};
 
     EXPECT_EQ(collider1.position, correctFinalPosition);
-    EXPECT_EQ(maxVelocity, 25.5059795F);
+    EXPECT_EQ(maxVelocity, 25.3424797F);
 }
 
 TEST_F(CollisionTestsFixture, SpherePlaneCollisionTest) {
@@ -83,7 +83,7 @@ TEST_F(CollisionTestsFixture, SpherePlaneCollisionTest) {
     glm::vec3 correctFinalPosition = {0, 1, 0};
 
     EXPECT_EQ(collider1.position, correctFinalPosition);
-    EXPECT_EQ(maxVelocity, 27.7949772F);
+    EXPECT_EQ(maxVelocity, 27.6314774F);
 }
 
 TEST_F(CollisionTestsFixture, CollideAllTest) {

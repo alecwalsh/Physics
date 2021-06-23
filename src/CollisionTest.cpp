@@ -81,14 +81,14 @@ namespace Physics {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
-        return (height - collider2.size.y / 2) <= planeHeight && (height + collider2.size.y / 2) >= planeHeight;
+        return (height - collider2.size.y / 2) < planeHeight && (height + collider2.size.y / 2) > planeHeight;
     }
 
     IMPLEMENT(SimplePlaneCollider, SphereCollider) {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
-        return (height - collider2.size.y / 2) <= planeHeight && (height + collider2.size.y / 2) >= planeHeight;
+        return (height - collider2.size.y / 2) < planeHeight && (height + collider2.size.y / 2) > planeHeight;
     }
 
     IMPLEMENT(SimpleCubeCollider, SimpleCubeCollider) {
@@ -101,7 +101,7 @@ namespace Physics {
 
         auto r = (collider1.size + collider2.size).x / 2;
 
-        return glm::dot(v, v) <= r * r;
+        return glm::dot(v, v) < r * r;
     }
 
 #undef IMPLEMENT
