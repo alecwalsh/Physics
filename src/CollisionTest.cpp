@@ -57,46 +57,75 @@ namespace Physics {
 
 // TODO: Find a better solution than these ugly macros
 
-#define IMPLEMENT(Type1, Type2) \
+#define INSTANTIATE_SUPPORTS_COLLISION_BASE(Type1, Type2) \
+    template bool SupportsCollision<Type1, Type2>() noexcept;
+
+#define INSTANTIATE_SUPPORTS_COLLISION1(Type1, Type2) \
+    INSTANTIATE_SUPPORTS_COLLISION_BASE(Type1, Type2)
+
+#define INSTANTIATE_SUPPORTS_COLLISION2(Type1, Type2) \
+    INSTANTIATE_SUPPORTS_COLLISION_BASE(Type1, Type2) \
+    INSTANTIATE_SUPPORTS_COLLISION_BASE(Type2, Type1)
+
+#define SPECIALIZE_SUPPORTS_COLLISION_IMPL(Type1, Type2, Value) \
     namespace { \
-        template<> struct SupportsCollisionImpl<Type1, Type2> { static constexpr bool value = true; };\
-    } \
-    template bool SupportsCollision<Type1, Type2>() noexcept; \
-    template bool SupportsCollision<Type2, Type1>() noexcept; \
+        template<> struct SupportsCollisionImpl<Type1, Type2> { static constexpr bool value = Value; };\
+    }
+
+#define IMPLEMENT_METHOD_SIGNATURE(Type1, Type2) \
     bool CollidesImpl::operator()(const Type1& collider1, const Type2& collider2)
 
-#define NOTIMPLEMENTED(Type1, Type2) \
-    bool CollidesImpl::operator()(const Type1& collider1, const Type2& collider2) { \
+#define NOTIMPLEMENTED_METHOD_DEFINITION(Type1, Type2) \
+    IMPLEMENT_METHOD_SIGNATURE(Type1, Type2) { \
         throw NotImplementedException{collider1, collider2}; \
-    } \
-    namespace { \
-        template<> struct SupportsCollisionImpl<Type1, Type2> { static constexpr bool value = false; };\
-    } \
-    template bool SupportsCollision<Type1, Type2>() noexcept; \
-    template bool SupportsCollision<Type2, Type1>() noexcept;
+    }
 
-    NOTIMPLEMENTED(SimplePlaneCollider, SimplePlaneCollider);
+#define IMPLEMENT_COMMON(Type1, Type2, Same) \
+    SPECIALIZE_SUPPORTS_COLLISION_IMPL(Type1, Type2, true) \
+    INSTANTIATE_SUPPORTS_COLLISION##Same(Type1, Type2) \
+    IMPLEMENT_METHOD_SIGNATURE(Type1, Type2)
 
-    IMPLEMENT(SimplePlaneCollider, SimpleCubeCollider) {
+#define IMPLEMENT1(Type1) \
+    IMPLEMENT_COMMON(Type1, Type1, 1)
+
+#define IMPLEMENT2(Type1, Type2) \
+    IMPLEMENT_COMMON(Type1, Type2, 2)
+
+#define NOTIMPLEMENTED_COMMON(Type1, Type2, Same) \
+    SPECIALIZE_SUPPORTS_COLLISION_IMPL(Type1, Type2, false) \
+    NOTIMPLEMENTED_METHOD_DEFINITION(Type1, Type2) \
+    INSTANTIATE_SUPPORTS_COLLISION##Same(Type1, Type2)
+
+#define NOTIMPLEMENTED1(Type1) \
+    NOTIMPLEMENTED_COMMON(Type1, Type1, 1)
+
+#define NOTIMPLEMENTED2(Type1, Type2) \
+    NOTIMPLEMENTED_COMMON(Type1, Type2, 2)
+
+
+
+    NOTIMPLEMENTED1(SimplePlaneCollider);
+
+    IMPLEMENT2(SimplePlaneCollider, SimpleCubeCollider) {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
         return (height - collider2.size.y / 2) < planeHeight && (height + collider2.size.y / 2) > planeHeight;
     }
 
-    IMPLEMENT(SimplePlaneCollider, SphereCollider) {
+    IMPLEMENT2(SimplePlaneCollider, SphereCollider) {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
         return (height - collider2.size.y / 2) < planeHeight && (height + collider2.size.y / 2) > planeHeight;
     }
 
-    IMPLEMENT(SimpleCubeCollider, SimpleCubeCollider) {
+    IMPLEMENT1(SimpleCubeCollider) {
         return CubesCollideSimple(collider1, collider2);
     }
-    NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
+    NOTIMPLEMENTED2(SimpleCubeCollider, SphereCollider);
 
-    IMPLEMENT(SphereCollider, SphereCollider) {
+    IMPLEMENT1(SphereCollider) {
         auto v = collider1.position - collider2.position;
 
         auto r = (collider1.size + collider2.size).x / 2;
