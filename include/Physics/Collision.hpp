@@ -75,35 +75,35 @@ class DispatcherCreator : public CollisionDispatcher {
 public:
     DispatcherCreator(ColliderType* thisCollider) : CollisionDispatcher{ColliderType::name}, thisCollider{thisCollider} {}
     
-    bool DispatchCollides(const SimplePlaneCollider& other) const override {
+    bool DispatchCollides(const SimplePlaneCollider& other) const override final {
         return Collides(*thisCollider, other);
     }
-    bool DispatchCollides(const SimpleCubeCollider& other) const override {
+    bool DispatchCollides(const SimpleCubeCollider& other) const override final {
         return Collides(*thisCollider, other);
     }
-    bool DispatchCollides(const SphereCollider& other) const override {
+    bool DispatchCollides(const SphereCollider& other) const override final {
         return Collides(*thisCollider, other);
     }
 
-    void DispatchApply(SimplePlaneCollider& other) const override {
+    void DispatchApply(SimplePlaneCollider& other) const override final {
         ApplyCollisionToFirst(other, *thisCollider);
     }
-    void DispatchApply(SimpleCubeCollider& other) const override {
+    void DispatchApply(SimpleCubeCollider& other) const override final {
         ApplyCollisionToFirst(other, *thisCollider);
     }
-    void DispatchApply(SphereCollider& other) const override {
+    void DispatchApply(SphereCollider& other) const override final {
         ApplyCollisionToFirst(other, *thisCollider);
     }
 
-    bool DispatchCanCollide(const SimplePlaneCollider& other) const noexcept override {
+    bool DispatchCanCollide(const SimplePlaneCollider& other) const noexcept override final {
         using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
         return SupportsCollision<ColliderType, OtherType>();
     }
-    bool DispatchCanCollide(const SimpleCubeCollider& other) const noexcept override {
+    bool DispatchCanCollide(const SimpleCubeCollider& other) const noexcept override final {
         using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
         return SupportsCollision<ColliderType, OtherType>();
     }
-    bool DispatchCanCollide(const SphereCollider& other) const noexcept override {
+    bool DispatchCanCollide(const SphereCollider& other) const noexcept override final {
         using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
         return SupportsCollision<ColliderType, OtherType>();
     }
@@ -147,24 +147,24 @@ class ColliderCreator : public Collider {
 
     Dispatcher dispatcher{static_cast<T*>(this)};
 
-    const CollisionDispatcher& GetCollisionDispatcher() const noexcept override {
+    const CollisionDispatcher& GetCollisionDispatcher() const noexcept override final {
         return dispatcher;
     }
-    CollisionDispatcher& GetCollisionDispatcher() noexcept override {
+    CollisionDispatcher& GetCollisionDispatcher() noexcept override final {
         return dispatcher;
     }
 public:
     using Collider::Collider;
 
-    bool SupportsCollisionWith(const Collider& other) const noexcept override {
+    bool SupportsCollisionWith(const Collider& other) const noexcept override final {
         return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCanCollide(*static_cast<const T*>(this));
     }
 
-    bool CollidesWith(const Collider& other) const override {
+    bool CollidesWith(const Collider& other) const override final {
         return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCollides(*static_cast<const T*>(this));
     }
 
-    void ApplyCollision(const Collider& other) override {
+    void ApplyCollision(const Collider& other) override final {
         static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchApply(*static_cast<T*>(this));
     }
 };
