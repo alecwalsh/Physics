@@ -140,7 +140,7 @@ public:
 
 template<typename T>
 class ColliderCreator : public Collider {
-    class Dispatcher : public DispatcherCreator<T> {
+    class Dispatcher final : public DispatcherCreator<T> {
     public:
         using DispatcherCreator<T>::DispatcherCreator;
     };
@@ -169,21 +169,21 @@ public:
     }
 };
 
-class SimplePlaneCollider : public ColliderCreator<SimplePlaneCollider> {
+class SimplePlaneCollider final : public ColliderCreator<SimplePlaneCollider> {
 public:
     static constexpr const char* name = "SimplePlane";
 
     SimplePlaneCollider(float height) : ColliderCreator{{0, height, 0}, 1, {}} {}
 };
 
-class SimpleCubeCollider : public ColliderCreator<SimpleCubeCollider> {
+class SimpleCubeCollider final : public ColliderCreator<SimpleCubeCollider> {
 public:
     static constexpr const char* name = "SimpleCube";
 
     using ColliderCreator::ColliderCreator;
 };
 
-class SphereCollider : public ColliderCreator<SphereCollider> {
+class SphereCollider final : public ColliderCreator<SphereCollider> {
 public:
     static constexpr const char* name = "Sphere";
 
