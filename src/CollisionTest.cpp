@@ -73,7 +73,7 @@ namespace Physics {
     }
 
 #define IMPLEMENT_METHOD_SIGNATURE(Type1, Type2) \
-    bool CollidesImpl::operator()(const Type1& collider1, const Type2& collider2)
+    CollisionResult CollidesImpl::operator()(const Type1& collider1, const Type2& collider2)
 
 #define NOTIMPLEMENTED_METHOD_DEFINITION(Type1, Type2) \
     IMPLEMENT_METHOD_SIGNATURE(Type1, Type2) { \

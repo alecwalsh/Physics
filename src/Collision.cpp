@@ -18,12 +18,12 @@ std::string NotImplementedException::CreateExceptionText(const Collider& collide
 // This function switches the order of arguments if necessary
 // This allows us to cut the number of required collision testing functions by half
 #if __cpp_concepts >= 201907L
-bool Collides(const std::derived_from<Collider> auto& t, const std::derived_from<Collider> auto& u) {
+CollisionResult Collides(const std::derived_from<Collider> auto& t, const std::derived_from<Collider> auto& u) {
     using T = decltype(t);
     using U = decltype(u);
 #else
 template<typename T, typename U>
-bool Collides(const T & t, const U & u) {
+CollisionResult Collides(const T & t, const U & u) {
 #endif
     constexpr bool invokableTU = std::is_invocable_v<CollidesImpl, T, U>;
     constexpr bool invokableUT = std::is_invocable_v<CollidesImpl, U, T>;
@@ -48,7 +48,7 @@ void ApplyCollisionToFirst(T& t, const U& u) {
 }
 
 #define IMPL_COLLIDES(Type1, Type2) \
-template bool Collides<Type1, Type2>(const Type1&, const Type2&); \
+template CollisionResult Collides<Type1, Type2>(const Type1&, const Type2&); \
 template void ApplyCollisionToFirst<Type1, Type2>(Type1&, const Type2&);
 
         IMPL_COLLIDES(SimplePlaneCollider, SimplePlaneCollider)

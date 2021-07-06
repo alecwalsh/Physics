@@ -23,6 +23,16 @@ class SimplePlaneCollider;
 class SimpleCubeCollider;
 class SphereCollider;
 
+struct CollisionResult {
+    bool collides = false;
+
+    constexpr CollisionResult(bool b) noexcept : collides{b} {}
+
+    constexpr operator bool() const noexcept {
+        return collides;
+    }
+};
+
 class NotImplementedException : public std::runtime_error {
     std::string CreateExceptionText(const Collider& collider1, const Collider& collider2) const;
 public:
@@ -30,7 +40,7 @@ public:
 };
 
 #if __cpp_concepts >= 201907L
-bool Collides(const std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
+CollisionResult Collides(const std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 void ApplyCollisionToFirst(std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 
 // Returns true if collision checking between the types is implemented
@@ -38,7 +48,7 @@ template<std::derived_from<Collider> T, std::derived_from<Collider> U>
 bool SupportsCollision() noexcept;
 #else
 template<typename T, typename U>
-bool Collides(const T&, const U&);
+CollisionResult Collides(const T&, const U&);
 
 template<typename T, typename U>
 void ApplyCollisionToFirst(T&, const U&);
@@ -54,9 +64,9 @@ protected:
 public:
     CollisionDispatcher(const char* name) : name{name} {}
 
-    virtual bool DispatchCollides(const SimplePlaneCollider&) const = 0;
-    virtual bool DispatchCollides(const SimpleCubeCollider&) const = 0;
-    virtual bool DispatchCollides(const SphereCollider&) const = 0;
+    virtual CollisionResult DispatchCollides(const SimplePlaneCollider&) const = 0;
+    virtual CollisionResult DispatchCollides(const SimpleCubeCollider&) const = 0;
+    virtual CollisionResult DispatchCollides(const SphereCollider&) const = 0;
 
     virtual void DispatchApply(SimplePlaneCollider&) const = 0;
     virtual void DispatchApply(SimpleCubeCollider&) const = 0;
@@ -75,13 +85,13 @@ class DispatcherCreator : public CollisionDispatcher {
 public:
     DispatcherCreator(ColliderType* thisCollider) : CollisionDispatcher{ColliderType::name}, thisCollider{thisCollider} {}
     
-    bool DispatchCollides(const SimplePlaneCollider& other) const override final {
+    CollisionResult DispatchCollides(const SimplePlaneCollider& other) const override final {
         return Collides(*thisCollider, other);
     }
-    bool DispatchCollides(const SimpleCubeCollider& other) const override final {
+    CollisionResult DispatchCollides(const SimpleCubeCollider& other) const override final {
         return Collides(*thisCollider, other);
     }
-    bool DispatchCollides(const SphereCollider& other) const override final {
+    CollisionResult DispatchCollides(const SphereCollider& other) const override final {
         return Collides(*thisCollider, other);
     }
 
@@ -126,7 +136,7 @@ public:
     // Returns true if collision checking between this type and other's type is implemented
     virtual bool SupportsCollisionWith(const Collider& other) const noexcept = 0;
 
-    virtual bool CollidesWith(const Collider&) const = 0;
+    virtual CollisionResult CollidesWith(const Collider&) const = 0;
 
     // Updates velocity and position and applies collision detection
     virtual void ApplyCollision(const Collider&) = 0;
@@ -160,7 +170,7 @@ public:
         return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCanCollide(*static_cast<const T*>(this));
     }
 
-    bool CollidesWith(const Collider& other) const override final {
+    CollisionResult CollidesWith(const Collider& other) const override final {
         return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCollides(*static_cast<const T*>(this));
     }
 
