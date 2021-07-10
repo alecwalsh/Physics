@@ -9,7 +9,7 @@ namespace Physics {
 
     namespace {
         constexpr bool RangesOverlap(float min1, float max1, float min2, float max2) {
-            return min1 <= max2 && max1 >= min2;
+            return min1 < max2 && max1 > min2;
         }
 
         constexpr bool CheckRanges(float f1, float size1, float f2, float size2) {

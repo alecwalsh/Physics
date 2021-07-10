@@ -126,7 +126,7 @@ bool Collides(CubeNoVelocity cube1, CubeNoVelocity cube2) {
 
 TEST_F(CollisionTestsFixture, CubesCollideSimpleTest) {
     // Test cubes
-    EXPECT_TRUE(Collides( // Barely touching
+    EXPECT_FALSE(Collides( // Barely touching
         {{0, 10, 0}, 1},
         {{0, 9, 0}, 1}
     ));
@@ -145,39 +145,39 @@ TEST_F(CollisionTestsFixture, CubesCollideSimpleTest) {
     ));
 
     // Now test cuboids
-    EXPECT_TRUE(Collides( // Barely touching x axis
-        {{0, 0, 0}, {3,2,1}},
-        {{2, 0, 0}, {1,2,3}}
+    EXPECT_FALSE(Collides( // Barely touching x axis
+        {{0, 0, 0}, {3, 2, 1}},
+        {{2, 0, 0}, {1, 2, 3}}
     ));
-    EXPECT_TRUE(Collides( // Barely touching y axis
-        {{0, 0, 0}, {3,2,1}},
-        {{0, -2, 0}, {1,2,3}}
+    EXPECT_FALSE(Collides( // Barely touching y axis
+        {{0, 0, 0}, {3, 2, 1}},
+        {{0, -2, 0}, {1, 2, 3}}
     ));
-    EXPECT_TRUE(Collides( // Barely touching z axis
-        {{0, 0, 0}, {3,2,1}},
-        {{0, 0, -2}, {1,2,3}}
+    EXPECT_FALSE(Collides( // Barely touching z axis
+        {{0, 0, 0}, {3, 2, 1}},
+        {{0, 0, -2}, {1, 2, 3}}
     ));
 
     EXPECT_TRUE(Collides( // Identical cuboids
-        {{0, 10, 0}, {3,2,1}},
-        {{0, 10, 0}, {3,2,1}}
+        {{0, 10, 0}, {3, 2, 1}},
+        {{0, 10, 0}, {3, 2, 1}}
     ));
 
     EXPECT_FALSE(Collides(
-        {{0, 10, 0}, {3,4,5}},
-        {{0.5, 12.50, -2}, {1,0.99,1}}
+        {{0, 10, 0}, {3, 4, 5}},
+        {{0.5, 12.50, -2}, {1, 0.99, 1}}
     ));
     EXPECT_FALSE(Collides(
-        {{0, 10, 0}, {3,4,5}},
+        {{0, 10, 0}, {3, 4, 5}},
         {{0.5, 13, -2}, 1}
     ));
 
     EXPECT_TRUE(Collides(
-        {{0, 10, 0}, {3,4,5}},
+        {{0, 10, 0}, {3, 4, 5}},
         {{0.5, 11, -2}, 1}
     ));
     EXPECT_TRUE(Collides( // One cuboid inside another
-        {{0, 10, 0}, {3,4,5}},
+        {{0, 10, 0}, {3, 4, 5}},
         {{0.5, 11, -2}, 0.25}
     ));
 }
