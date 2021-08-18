@@ -17,14 +17,8 @@ std::string NotImplementedException::CreateExceptionText(const Collider& collide
 // Collision testing is symmetric
 // This function switches the order of arguments if necessary
 // This allows us to cut the number of required collision testing functions by half
-#if __cpp_concepts >= 201907L
-CollisionResult Collides(const std::derived_from<Collider> auto& t, const std::derived_from<Collider> auto& u) {
-    using T = decltype(t);
-    using U = decltype(u);
-#else
-template<typename T, typename U>
+template<std::derived_from<Collider> T, std::derived_from<Collider> U>
 CollisionResult Collides(const T & t, const U & u) {
-#endif
     constexpr bool invokableTU = std::is_invocable_v<CollidesImpl, T, U>;
     constexpr bool invokableUT = std::is_invocable_v<CollidesImpl, U, T>;
 
@@ -38,12 +32,7 @@ CollisionResult Collides(const T & t, const U & u) {
     }
 }
 
-#if __cpp_concepts >= 201907L
 void ApplyCollisionToFirst(std::derived_from<Collider> auto& t, const std::derived_from<Collider> auto& u) {
-#else
-template<typename T, typename U>
-void ApplyCollisionToFirst(T& t, const U& u) {
-#endif
     ApplyCollisionImpl(t, u);
 }
 

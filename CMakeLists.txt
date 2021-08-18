@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8.0)
+cmake_minimum_required(VERSION 3.18.0)
 
 project(glfwogltest2_physics VERSION 0.0.0.1)
 

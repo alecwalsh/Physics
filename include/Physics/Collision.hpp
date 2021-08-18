@@ -7,9 +7,7 @@
 #include <utility>
 #include <type_traits>
 
-#if __cpp_concepts >= 201907L
 #include <concepts>
-#endif
 
 struct TimeManagerShim {
     double& elapsedTime;
@@ -39,24 +37,12 @@ public:
     NotImplementedException(const Collider& collider1, const Collider& collider2) : runtime_error{CreateExceptionText(collider1, collider2)} {}
 };
 
-#if __cpp_concepts >= 201907L
 CollisionResult Collides(const std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 void ApplyCollisionToFirst(std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 
 // Returns true if collision checking between the types is implemented
 template<std::derived_from<Collider> T, std::derived_from<Collider> U>
 bool SupportsCollision() noexcept;
-#else
-template<typename T, typename U>
-CollisionResult Collides(const T&, const U&);
-
-template<typename T, typename U>
-void ApplyCollisionToFirst(T&, const U&);
-
-// Returns true if collision checking between the types is implemented
-template<typename T, typename U>
-bool SupportsCollision() noexcept;
-#endif
 
 class CollisionDispatcher {
 protected:

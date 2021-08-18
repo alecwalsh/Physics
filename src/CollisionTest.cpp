@@ -41,13 +41,8 @@ namespace Physics {
         struct IsDefined<T, U, std::void_t<decltype(SupportsCollisionImpl<T, U>::value)>> : std::true_type {};
     }
 
-#if __cpp_concepts >= 201907L
     template<std::derived_from<Collider> T, std::derived_from<Collider> U>
     bool SupportsCollision() noexcept {
-#else
-    template<typename T, typename U>
-    bool SupportsCollision() noexcept {
-#endif
         if constexpr(IsDefined<T, U>::value) {
             return SupportsCollisionImpl<T, U>::value;
         } else {
