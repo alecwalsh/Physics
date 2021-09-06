@@ -181,3 +181,21 @@ TEST_F(CollisionTestsFixture, CubesCollideSimpleTest) {
         {{0.5, 11, -2}, 0.25}
     ));
 }
+
+TEST_F(CollisionTestsFixture, SupportCollisionTest) {
+    Physics::SimpleCubeCollider cube{{1,2,3}, 1, {0,0,0}};
+    Physics::SphereCollider sphere{{1,2,3}, 1, {0,0,0}};
+    Physics::SimplePlaneCollider plane{1};
+
+    EXPECT_FALSE(plane.SupportsCollisionWith(plane));
+    EXPECT_TRUE(plane.SupportsCollisionWith(cube));
+    EXPECT_TRUE(plane.SupportsCollisionWith(sphere));
+
+    EXPECT_TRUE(cube.SupportsCollisionWith(plane));
+    EXPECT_TRUE(cube.SupportsCollisionWith(cube));
+    EXPECT_FALSE(cube.SupportsCollisionWith(sphere));
+
+    EXPECT_TRUE(sphere.SupportsCollisionWith(plane));
+    EXPECT_FALSE(sphere.SupportsCollisionWith(cube));
+    EXPECT_TRUE(sphere.SupportsCollisionWith(sphere));
+}
