@@ -92,15 +92,15 @@ public:
     }
 
     bool DispatchCanCollide(const SimplePlaneCollider& other) const noexcept override final {
-        using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
+        using OtherType = std::remove_cvref_t<decltype(other)>;
         return SupportsCollision<ColliderType, OtherType>();
     }
     bool DispatchCanCollide(const SimpleCubeCollider& other) const noexcept override final {
-        using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
+        using OtherType = std::remove_cvref_t<decltype(other)>;
         return SupportsCollision<ColliderType, OtherType>();
     }
     bool DispatchCanCollide(const SphereCollider& other) const noexcept override final {
-        using OtherType = std::remove_cv_t<std::remove_reference_t<decltype(other)>>;
+        using OtherType = std::remove_cvref_t<decltype(other)>;
         return SupportsCollision<ColliderType, OtherType>();
     }
 };
