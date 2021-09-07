@@ -24,21 +24,15 @@ namespace Physics {
         return xOverlap && yOverlap && zOverlap;
     }
 
-// TODO: Find a better solution than these ugly macros
-
-#define IMPLEMENT_METHOD_SIGNATURE(Type1, Type2) \
+#define IMPLEMENT(Type1, Type2) \
     CollisionResult CollidesImpl::operator()(const Type1& collider1, const Type2& collider2)
 
-#define NOTIMPLEMENTED_METHOD_DEFINITION(Type1, Type2) \
-    IMPLEMENT_METHOD_SIGNATURE(Type1, Type2) { \
+#define NOTIMPLEMENTED(Type1, Type2) \
+    IMPLEMENT(Type1, Type2) { \
         throw NotImplementedException{collider1, collider2}; \
     }
 
-#define IMPLEMENT(Type1, Type2) \
-    IMPLEMENT_METHOD_SIGNATURE(Type1, Type2)
 
-#define NOTIMPLEMENTED(Type1, Type2) \
-    NOTIMPLEMENTED_METHOD_DEFINITION(Type1, Type2)
 
     NOTIMPLEMENTED(SimplePlaneCollider, SimplePlaneCollider);
 

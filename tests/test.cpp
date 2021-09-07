@@ -1,5 +1,4 @@
 #include <Physics/Collision.hpp>
-#include <Physics/CollisionTest.hpp>
 
 #include <Physics/config.hpp>
 

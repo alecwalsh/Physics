@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Collision.hpp"
+#include "Collider.hpp"
 
 #include <type_traits>
 #include <concepts>
@@ -17,9 +17,7 @@ namespace Physics {
 
         CollisionResult operator()(const SphereCollider&, const SphereCollider&);
     };
-}
 
-namespace Physics {
     namespace {
         template<typename T, typename U>
         struct SupportsCollisionImpl;
@@ -43,6 +41,24 @@ namespace Physics {
         }
     }
 
+    // Collision testing is symmetric
+    // This function switches the order of arguments if necessary
+    // This allows us to cut the number of required collision testing functions by half
+    template<std::derived_from<Collider> T, std::derived_from<Collider> U>
+    CollisionResult Collides(const T& t, const U& u) {
+        constexpr bool invokableTU = std::is_invocable_v<CollidesImpl, T, U>;
+        constexpr bool invokableUT = std::is_invocable_v<CollidesImpl, U, T>;
+
+        static_assert(invokableTU || invokableUT);
+
+        if constexpr(invokableTU) {
+            return CollidesImpl{}(t, u);
+        }
+        else {
+            return CollidesImpl{}(u, t);
+        }
+    }
+
 // TODO: Find a better solution than these ugly macros
 
 #define SPECIALIZE_SUPPORTS_COLLISION_IMPL(Type1, Type2, Value) \
@@ -56,6 +72,7 @@ namespace Physics {
 #define NOTIMPLEMENTED(Type1, Type2) \
     SPECIALIZE_SUPPORTS_COLLISION_IMPL(Type1, Type2, false)
 
+
     NOTIMPLEMENTED(SimplePlaneCollider, SimplePlaneCollider);
 
     IMPLEMENT(SimplePlaneCollider, SimpleCubeCollider);
@@ -67,6 +84,7 @@ namespace Physics {
     NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
 
     IMPLEMENT(SphereCollider, SphereCollider);
+
 }
 
 #undef SPECIALIZE_SUPPORTS_COLLISION_IMPL

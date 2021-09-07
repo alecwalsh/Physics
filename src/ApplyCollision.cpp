@@ -4,8 +4,41 @@
 #include <cassert>
 
 namespace Physics {
+    namespace {
+        // Applying vec to this sphere results in an intersection
+        // This function finds the value for vec.y that makes the spheres touch, but not intersect
+        // TODO: Use x, y, and z instead of just y
+        glm::vec3 SmallestY(const SphereCollider& thisSphere, const SphereCollider& otherSphere, glm::vec3 vec) noexcept {
+            using std::pow, std::abs, std::sqrt;
 
-namespace {
+            auto dist2 = pow((thisSphere.size.x + otherSphere.size.x) / 2, 2);
+
+            auto vecWithoutY = vec;
+            vecWithoutY.y = 0;
+
+            const auto p1 = thisSphere.position + vecWithoutY;
+            const auto p2 = otherSphere.position;
+
+            const auto a = 1.0;
+            const auto b = 2 * (p1.y - p2.y);
+            const auto c = pow(p1.x - p2.x, 2) + pow(p1.z - p2.z, 2) + pow(p1.y - p2.y, 2) - dist2;
+
+            auto det = b * b - 4 * a * c;
+
+            auto r1 = (-b + sqrt(det)) / (2 * a);
+            auto r2 = (-b - sqrt(det)) / (2 * a);
+
+            auto r1abs = abs(r1);
+            auto r2abs = abs(r2);
+
+            auto yDiff = r1abs < r2abs ? r1 : r2;
+
+            glm::vec3 diff = {0, yDiff, 0};
+
+            return diff;
+        }
+    }
+
     void ApplyCollision(SphereCollider& collider1, const SimplePlaneCollider& planeCollider) {
         assert(collider1.size.x == collider1.size.y && collider1.size.y == collider1.size.z);
 
@@ -60,39 +93,6 @@ namespace {
         collider1 = newCollider;
     }
 
-    // Applying vec to this sphere results in an intersection
-    // This function finds the value for vec.y that makes the spheres touch, but not intersect
-    // TODO: Use x, y, and z instead of just y
-    glm::vec3 SmallestY(const SphereCollider& thisSphere, const SphereCollider& otherSphere, glm::vec3 vec) noexcept {
-        using std::pow, std::abs, std::sqrt;
-
-        auto dist2 = pow((thisSphere.size.x + otherSphere.size.x) / 2, 2);
-
-        auto vecWithoutY = vec;
-        vecWithoutY.y = 0;
-
-        const auto p1 = thisSphere.position + vecWithoutY;
-        const auto p2 = otherSphere.position;
-
-        const auto a = 1.0;
-        const auto b = 2 * (p1.y - p2.y);
-        const auto c = pow(p1.x - p2.x, 2) + pow(p1.z - p2.z, 2) + pow(p1.y - p2.y, 2) - dist2;
-
-        auto det = b * b - 4 * a * c;
-
-        auto r1 = (-b + sqrt(det)) / (2 * a);
-        auto r2 = (-b - sqrt(det)) / (2 * a);
-
-        auto r1abs = abs(r1);
-        auto r2abs = abs(r2);
-
-        auto yDiff = r1abs < r2abs ? r1 : r2;
-
-        glm::vec3 diff = {0, yDiff, 0};
-
-        return diff;
-    }
-
     void ApplyCollision(SphereCollider& collider1, const SphereCollider& otherSphere) {
         assert(collider1.size.x == collider1.size.y && collider1.size.y == collider1.size.z);
         assert(otherSphere.size.x == otherSphere.size.y && otherSphere.size.y == otherSphere.size.z);
@@ -121,7 +121,7 @@ namespace {
 
         collider1 = newCollider;
     }
-}
+
 
 #define IMPLEMENT(Type1, Type2) \
     void ApplyCollisionImpl(Type1& collider1, const Type2& collider2) { \
