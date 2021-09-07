@@ -195,4 +195,4 @@ constexpr float earthGravity = 9.81f;
 constexpr glm::vec3 earthGravityVector = {0, -earthGravity, 0};
 
 inline TimeManagerShim* timeManager;
-};
+}

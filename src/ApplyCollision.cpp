@@ -138,13 +138,13 @@ namespace {
     NOTIMPLEMENTED(SimplePlaneCollider, SphereCollider);
 
 
-    IMPLEMENT(SimpleCubeCollider, SimplePlaneCollider)
+    IMPLEMENT(SimpleCubeCollider, SimplePlaneCollider);
     NOTIMPLEMENTED(SimpleCubeCollider, SimpleCubeCollider);
     NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
 
-    IMPLEMENT(SphereCollider, SimplePlaneCollider)
+    IMPLEMENT(SphereCollider, SimplePlaneCollider);
     NOTIMPLEMENTED(SphereCollider, SimpleCubeCollider);
-    IMPLEMENT(SphereCollider, SphereCollider)
+    IMPLEMENT(SphereCollider, SphereCollider);
 
 #undef IMPLEMENT
 #undef NOTIMPLEMENTED
