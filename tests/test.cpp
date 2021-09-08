@@ -10,9 +10,11 @@
 
 // Create an empty file with the same name as the executable suffixed with ".is_google_test" to make Visual Studio's Google Test support discover the tests
 
+namespace glm {
 static std::ostream& operator<<(std::ostream& os, glm::vec3 vec) {
     os << "{" << vec.x << ", " << vec.y << ", " << vec.z << "}";
     return os;
+}
 }
 
 class CollisionTestsFixture : public ::testing::Test {

@@ -31,7 +31,8 @@ namespace Physics {
     class SphereCollider;
 
     // Forward declare function templates
-    CollisionResult Collides(const std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
+    template<std::derived_from<Collider> T, std::derived_from<Collider> U>
+    CollisionResult Collides(const T& t, const U& u);
     void ApplyCollisionToFirst(std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 
     // Returns true if collision checking between the types is implemented
