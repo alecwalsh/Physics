@@ -30,7 +30,7 @@ protected:
         float maxVelocity = 0;
 
         while(Physics::timeManager->elapsedTime < secondsToRun) {
-            collider1.ApplyCollision(collider2);
+//            collider1.ApplyCollision(collider2);
 
             maxVelocity = std::max(maxVelocity, glm::length(collider1.velocity));
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Collider.hpp"
-#include "ApplyCollision.hpp"
 #include "CollisionTest.hpp"
 
 #include <span>

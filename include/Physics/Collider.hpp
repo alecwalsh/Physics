@@ -33,7 +33,6 @@ namespace Physics {
     // Forward declare function templates
     template<std::derived_from<Collider> T, std::derived_from<Collider> U>
     CollisionResult Collides(const T& t, const U& u);
-    void ApplyCollisionToFirst(std::derived_from<Collider> auto&, const std::derived_from<Collider> auto&);
 
     // Returns true if collision checking between the types is implemented
     template<std::derived_from<Collider> T, std::derived_from<Collider> U>
@@ -54,10 +53,6 @@ namespace Physics {
         virtual CollisionResult DispatchCollides(const SimplePlaneCollider&) const = 0;
         virtual CollisionResult DispatchCollides(const SimpleCubeCollider&) const = 0;
         virtual CollisionResult DispatchCollides(const SphereCollider&) const = 0;
-
-        virtual void DispatchApply(SimplePlaneCollider&) const = 0;
-        virtual void DispatchApply(SimpleCubeCollider&) const = 0;
-        virtual void DispatchApply(SphereCollider&) const = 0;
 
         virtual bool DispatchCanCollide(const SimplePlaneCollider&) const noexcept = 0;
         virtual bool DispatchCanCollide(const SimpleCubeCollider&) const noexcept = 0;
@@ -80,16 +75,6 @@ namespace Physics {
         }
         CollisionResult DispatchCollides(const SphereCollider& other) const final {
             return Collides(*thisCollider, other);
-        }
-
-        void DispatchApply(SimplePlaneCollider& other) const final {
-            ApplyCollisionToFirst(other, *thisCollider);
-        }
-        void DispatchApply(SimpleCubeCollider& other) const final {
-            ApplyCollisionToFirst(other, *thisCollider);
-        }
-        void DispatchApply(SphereCollider& other) const final {
-            ApplyCollisionToFirst(other, *thisCollider);
         }
 
         bool DispatchCanCollide(const SimplePlaneCollider& other) const noexcept final {
@@ -127,9 +112,6 @@ namespace Physics {
 
         virtual CollisionResult CollidesWith(const Collider&) const = 0;
 
-        // Updates velocity and position and applies collision detection
-        virtual void ApplyCollision(const Collider&) = 0;
-
         const char* GetName() const {
             return GetCollisionDispatcher().name;
         }
@@ -161,10 +143,6 @@ namespace Physics {
 
         CollisionResult CollidesWith(const Collider& other) const final {
             return static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchCollides(*static_cast<const T*>(this));
-        }
-
-        void ApplyCollision(const Collider& other) final {
-            static_cast<const ColliderCreator&>(other).GetCollisionDispatcher().DispatchApply(*static_cast<T*>(this));
         }
     };
 
