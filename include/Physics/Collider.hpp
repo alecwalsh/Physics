@@ -115,6 +115,8 @@ namespace Physics {
         glm::vec3 size = {1, 1, 1};
         glm::vec3 velocity = {};
 
+        bool hasGravity = true;
+
         Collider(glm::vec3 position, glm::vec3 size, glm::vec3 velocity);
         Collider(glm::vec3 position, float size, glm::vec3 velocity);
 

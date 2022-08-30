@@ -4,8 +4,8 @@
 #include "ApplyCollision.hpp"
 #include "CollisionTest.hpp"
 
-#include <vector>
+#include <span>
 
 namespace Physics {
-    void collideAll(const std::vector<Collider*>& colliders);
+    void ApplyVelocity(std::span<Collider*> colliders);
 }
