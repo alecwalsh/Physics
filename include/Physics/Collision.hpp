@@ -6,5 +6,6 @@
 #include <span>
 
 namespace Physics {
+    void ResolveCollisions(std::span<Collider*> colliders);
     void ApplyVelocity(std::span<Collider*> colliders);
 }

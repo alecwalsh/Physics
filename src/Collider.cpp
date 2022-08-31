@@ -11,8 +11,8 @@ namespace Physics {
     }
 
     std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const noexcept {
-        float deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
-        const auto& acceleration = earthGravityVector;
+        auto deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
+        auto acceleration = hasGravity ? earthGravityVector : glm::vec3{};
 
         auto initialVelocity = velocity;
 

@@ -17,6 +17,12 @@ namespace Physics {
     struct CollisionResult {
         bool collides = false;
 
+        //Collider* collider1;
+        //Collider* collider2;
+
+        glm::vec3 normal = {};
+        float penetration;
+
         constexpr CollisionResult(bool b) noexcept : collides{b} {}
 
         constexpr operator bool() const noexcept {
@@ -101,6 +107,9 @@ namespace Physics {
         glm::vec3 velocity = {};
 
         bool hasGravity = true;
+        std::string name;
+        float restitution = 1;
+        float mass = 1;
 
         Collider(glm::vec3 position, glm::vec3 size, glm::vec3 velocity);
         Collider(glm::vec3 position, float size, glm::vec3 velocity);

@@ -53,14 +53,23 @@ namespace Physics {
     IMPLEMENT(SimpleCubeCollider, SimpleCubeCollider) {
         return CubesCollideSimple(collider1, collider2);
     }
-    
+
     NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
 
     IMPLEMENT(SphereCollider, SphereCollider) {
         auto v = collider1.position - collider2.position;
 
         auto r = (collider1.size + collider2.size).x / 2;
+        auto d = std::sqrt(glm::dot(v, v));
 
-        return glm::dot(v, v) < r * r;
+        CollisionResult result{glm::dot(v, v) < r * r};
+
+        if(result.collides) {
+            result.penetration = r - d;
+
+            result.normal = v;
+        }
+
+        return result;
     }
 }
