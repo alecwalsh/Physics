@@ -1,4 +1,4 @@
 #CMake
 build/
-
-.vs
+.vs/
+.idea/
