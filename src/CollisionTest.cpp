@@ -59,13 +59,13 @@ namespace Physics {
     IMPLEMENT(SphereCollider, SphereCollider) {
         auto v = collider1.position - collider2.position;
 
-        auto r = (collider1.size + collider2.size).x / 2;
-        auto d = std::sqrt(glm::dot(v, v));
+        float r = (collider1.size + collider2.size).x / 2;
+        float vv = glm::dot(v, v);
 
-        CollisionResult result{glm::dot(v, v) < r * r};
+        CollisionResult result{vv < r * r};
 
         if(result.collides) {
-            result.penetration = r - d;
+            result.penetration = r - std::sqrt(vv);
 
             result.normal = v;
         }
