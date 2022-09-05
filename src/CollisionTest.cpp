@@ -40,14 +40,50 @@ namespace Physics {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
-        return (height - collider2.size.y / 2) < planeHeight && (height + collider2.size.y / 2) > planeHeight;
+        float r = collider2.size.y / 2;
+        float d = std::abs(planeHeight - height);
+
+        CollisionResult result{d < r};
+
+        if(result.collides) {
+            // collider2 is approaching the plane from above
+            if(glm::dot(collider2.velocity, glm::vec3{0, -1, 0}) > 0) {
+                result.penetration = r - (collider2.position.y - collider1.position.y);
+                result.normal = glm::vec3{0, -1, 0};
+            }
+            // collider2 is approaching the plane from below
+            if(glm::dot(collider2.velocity, glm::vec3{0, 1, 0}) > 0) {
+                result.penetration = r + (collider2.position.y - collider1.position.y);
+                result.normal = glm::vec3{0, 1, 0};
+            }
+        }
+
+        return result;
     }
 
     IMPLEMENT(SimplePlaneCollider, SphereCollider) {
         auto planeHeight = collider1.position.y;
         auto height = collider2.position.y;
 
-        return (height - collider2.size.y / 2) < planeHeight && (height + collider2.size.y / 2) > planeHeight;
+        float r = collider2.size.y / 2;
+        float d = std::abs(planeHeight - height);
+
+        CollisionResult result{d < r};
+
+        if(result.collides) {
+            // collider2 is approaching the plane from above
+            if(glm::dot(collider2.velocity, glm::vec3{0, -1, 0}) > 0) {
+                result.penetration = r - (collider2.position.y - collider1.position.y);
+                result.normal = glm::vec3{0, -1, 0};
+            }
+            // collider2 is approaching the plane from below
+            if(glm::dot(collider2.velocity, glm::vec3{0, 1, 0}) > 0) {
+                result.penetration = r + (collider2.position.y - collider1.position.y);
+                result.normal = glm::vec3{0, 1, 0};
+            }
+        }
+
+        return result;
     }
 
     IMPLEMENT(SimpleCubeCollider, SimpleCubeCollider) {
