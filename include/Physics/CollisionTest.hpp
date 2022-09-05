@@ -55,7 +55,12 @@ namespace Physics {
             return CollidesImpl{}(t, u);
         }
         else {
-            return CollidesImpl{}(u, t);
+            auto result = CollidesImpl{}(u, t);
+
+            // If the order of the arguments are switched, then the collision normal must be reversed
+            result.normal = -result.normal;
+
+            return result;
         }
     }
 
