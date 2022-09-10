@@ -75,7 +75,7 @@ namespace Physics {
 //            std::cout << "pairs.size() = " << pairs.size() << std::endl;
 //        }
 
-        std::ranges::for_each(pairs, ResolveCollision);
+        std::for_each(pairs.begin(), pairs.end(), ResolveCollision);
     }
 
     void ApplyVelocity(std::span<Collider*> colliders) {
