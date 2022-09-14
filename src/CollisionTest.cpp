@@ -2,9 +2,12 @@
 
 #include <glm/geometric.hpp>
 
+#include <cassert>
+#include <algorithm>
+
 namespace Physics {
     constexpr bool RangesOverlap(float min1, float max1, float min2, float max2) {
-        return min1 < max2&& max1 > min2;
+        return min1 < max2 && max1 > min2;
     }
 
     constexpr bool CheckRanges(float f1, float size1, float f2, float size2) {
@@ -87,7 +90,56 @@ namespace Physics {
     }
 
     IMPLEMENT(SimpleCubeCollider, SimpleCubeCollider) {
-        return CubesCollideSimple(collider1, collider2);
+        bool collides = CubesCollideSimple(collider1, collider2);
+
+        // Exit early if the cubes don't collide
+        if (!collides) return collides;
+
+        auto v = collider2.position - collider1.position;
+
+        glm::vec3 a_extents = collider1.size / glm::vec3{2};
+        glm::vec3 b_extents = collider2.size / glm::vec3{2};
+
+        glm::vec3 overlaps = a_extents + b_extents - glm::abs(v);
+
+        CollisionResult result{overlaps.x > 0 && overlaps.y > 0 && overlaps.z > 0};
+
+        // This should have the same result as CubesCollideSimple
+        assert(result.collides);
+
+        float min_overlap = std::min({overlaps.x, overlaps.y, overlaps.z});
+
+        if (min_overlap == overlaps.x) {
+            if (v.x > 0) {
+                result.normal = {-1, 0, 0};
+            } else {
+                result.normal = {1, 0, 0};
+            }
+
+            result.penetration = std::abs(overlaps.x);
+        }
+
+        if (min_overlap == overlaps.y) {
+            if (v.y > 0) {
+                result.normal = {0, -1, 0};
+            } else {
+                result.normal = {0, 1, 0};
+            }
+
+            result.penetration = std::abs(overlaps.y);
+        }
+
+        if (min_overlap == overlaps.z) {
+            if (v.z > 0) {
+                result.normal = {0, 0, -1};
+            } else {
+                result.normal = {0, 0, 1};
+            }
+
+            result.penetration = std::abs(overlaps.z);
+        }
+
+        return result;
     }
 
     NOTIMPLEMENTED(SimpleCubeCollider, SphereCollider);
