@@ -6,6 +6,7 @@ set(SOURCES ${SOURCES} ${HEADERS})
 add_library(glfwogltest2_physics ${SOURCES})
 
 find_package(glm CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 if(MSVC)
     target_compile_definitions(glfwogltest2_physics PRIVATE NOMINMAX)
@@ -22,7 +23,7 @@ target_compile_features(glfwogltest2_physics PUBLIC c_std_11 cxx_std_20)
 target_include_directories(glfwogltest2_physics PUBLIC "../include")
 target_include_directories(glfwogltest2_physics PRIVATE "../include/Physics")
 
-target_link_libraries(glfwogltest2_physics PUBLIC glm::glm)
+target_link_libraries(glfwogltest2_physics PUBLIC glm::glm spdlog::spdlog)
 
 configure_file(../include/Physics/config.hpp.in include/Physics/config.hpp)
 target_include_directories(glfwogltest2_physics PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)

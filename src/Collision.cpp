@@ -4,16 +4,15 @@
 #include <utility>
 
 #include <glm/glm.hpp>
-#include <iostream>
 #include <algorithm>
+
+#include <spdlog/spdlog.h>
 
 namespace Physics {
     static std::set<std::pair<Collider*, Collider*>> CalculatePairs(std::span<Collider*> colliders) {
         std::set<std::pair<Collider*, Collider*>> pairs;
 
-        if(colliders.size() > 0) {
-            //std::cout << "colliders.size() = " << colliders.size() << std::endl;
-        }
+        spdlog::trace("Calculating colliding pairs for {} colliders", colliders.size());
 
         for(auto collider1 : colliders) {
             for(auto collider2 : colliders) {
@@ -29,6 +28,9 @@ namespace Physics {
                 }
             }
         }
+
+
+        spdlog::info("Found {} colliding pairs", pairs.size());
 
         return pairs;
     }
@@ -53,9 +55,9 @@ namespace Physics {
         if(result.collides) {
             auto n = result.normal;
 
-            std::cout << "Collision between " << collider1->name << " and " << collider2->name << std::endl;
-            std::cout << "Collision normal: " << n.x << ", " << n.y << ", " << n.z << std::endl;
-            std::cout << "Collision penetration: " << result.penetration << std::endl;
+            spdlog::trace("Collision between {} and {}", collider1->name, collider2->name);
+            spdlog::trace("Collision normal: {}, {}, {}", n.x, n.y, n.z);
+            spdlog::trace("Collision penetration: {}", result.penetration);
 
             float restitution = std::min(collider1->restitution, collider2->restitution);
 
@@ -70,10 +72,6 @@ namespace Physics {
 
     void ResolveCollisions(std::span<Collider*> colliders) {
         auto pairs = CalculatePairs(colliders);
-
-//        if(pairs.size() > 0) {
-//            std::cout << "pairs.size() = " << pairs.size() << std::endl;
-//        }
 
         std::for_each(pairs.begin(), pairs.end(), ResolveCollision);
     }

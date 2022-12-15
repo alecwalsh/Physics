@@ -3,7 +3,8 @@
   "version": "0.0.0.1",
 
   "dependencies": [
-    "glm"
+    "glm",
+    "spdlog"
   ],
   "default-features": [],
   "features": {
