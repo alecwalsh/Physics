@@ -1,13 +1,12 @@
 #include "Collider.hpp"
 
 #include <string>
-#include <sstream>
+
+#include <fmt/core.h>
 
 namespace Physics {
-    std::string NotImplementedException::CreateExceptionText(const Collider& collider1, const Collider& collider2) const {
-        std::ostringstream ss;
-        ss << "Collision between " << collider1.GetName() << " and " << collider2.GetName() << " is not implemented";
-        return ss.str();
+    std::string NotImplementedException::CreateExceptionText(const Collider& collider1, const Collider& collider2) {
+        return fmt::format("Collision between {} and {} is not implemented", collider1.GetName(), collider2.GetName());
     }
 
     std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const noexcept {

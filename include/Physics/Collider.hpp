@@ -46,7 +46,7 @@ namespace Physics {
     bool SupportsCollision() noexcept;
 
     class NotImplementedException : public std::runtime_error {
-        std::string CreateExceptionText(const Collider& collider1, const Collider& collider2) const;
+        static std::string CreateExceptionText(const Collider& collider1, const Collider& collider2);
     public:
         NotImplementedException(const Collider& collider1, const Collider& collider2) : runtime_error{CreateExceptionText(collider1, collider2)} {}
     };
