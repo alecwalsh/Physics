@@ -9,15 +9,16 @@ namespace Physics {
         return fmt::format("Collision between {} and {} is not implemented", collider1.GetColliderTypeName(), collider2.GetColliderTypeName());
     }
 
-    std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const noexcept {
-        auto deltaTime = static_cast<float>(Physics::timeManager->deltaTime);
-        auto acceleration = hasGravity ? earthGravityVector : glm::vec3{};
+    std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity(glm::vec3 gravityVector, float deltaTime) const noexcept {
+        auto distance = velocity * deltaTime;
 
-        auto initialVelocity = velocity;
+        if(!hasGravity) return {position + distance, velocity};
+
+        auto acceleration = gravityVector;
 
         auto newVelocity = velocity + acceleration * deltaTime;
 
-        auto distance = initialVelocity * deltaTime + (acceleration * (deltaTime * deltaTime / 2));
+        distance += (acceleration * (deltaTime * deltaTime / 2));
 
         return {position + distance, newVelocity};
     }
