@@ -6,7 +6,7 @@
 
 namespace Physics {
     std::string NotImplementedException::CreateExceptionText(const Collider& collider1, const Collider& collider2) {
-        return fmt::format("Collision between {} and {} is not implemented", collider1.GetName(), collider2.GetName());
+        return fmt::format("Collision between {} and {} is not implemented", collider1.GetColliderTypeName(), collider2.GetColliderTypeName());
     }
 
     std::pair<glm::vec3, glm::vec3> Collider::CalculatePositionAndVelocity() const noexcept {

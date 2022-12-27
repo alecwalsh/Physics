@@ -55,7 +55,7 @@ namespace Physics {
     protected:
         ~CollisionDispatcher() = default;
     public:
-        CollisionDispatcher(const char* name) : name{name} {}
+        CollisionDispatcher(const char* colliderTypeName) : colliderTypeName{colliderTypeName} {}
 
         virtual CollisionResult DispatchCollides(const SimplePlaneCollider&) const = 0;
         virtual CollisionResult DispatchCollides(const SimpleCubeCollider&) const = 0;
@@ -65,14 +65,14 @@ namespace Physics {
         virtual bool DispatchCanCollide(const SimpleCubeCollider&) const noexcept = 0;
         virtual bool DispatchCanCollide(const SphereCollider&) const noexcept = 0;
 
-        const char* name;
+        const char* colliderTypeName;
     };
 
     template<typename ColliderType>
     class DispatcherCreator : public CollisionDispatcher {
         ColliderType* thisCollider;
     public:
-        DispatcherCreator(ColliderType* thisCollider) : CollisionDispatcher{ColliderType::name}, thisCollider{thisCollider} {}
+        DispatcherCreator(ColliderType* thisCollider) : CollisionDispatcher{ColliderType::colliderTypeName}, thisCollider{thisCollider} {}
 
         CollisionResult DispatchCollides(const SimplePlaneCollider& other) const final {
             return Collides(*thisCollider, other);
@@ -122,8 +122,8 @@ namespace Physics {
 
         virtual CollisionResult CollidesWith(const Collider&) const = 0;
 
-        const char* GetName() const {
-            return GetCollisionDispatcher().name;
+        const char* GetColliderTypeName() const {
+            return GetCollisionDispatcher().colliderTypeName;
         }
 
         virtual ~Collider() = default;
@@ -158,21 +158,21 @@ namespace Physics {
 
     class SimplePlaneCollider final : public ColliderCreator<SimplePlaneCollider> {
     public:
-        static constexpr const char* name = "SimplePlane";
+        static constexpr const char* colliderTypeName = "SimplePlane";
 
         SimplePlaneCollider(float height) : ColliderCreator{{0, height, 0}, 1, {}} {}
     };
 
     class SimpleCubeCollider final : public ColliderCreator<SimpleCubeCollider> {
     public:
-        static constexpr const char* name = "SimpleCube";
+        static constexpr const char* colliderTypeName = "SimpleCube";
 
         using ColliderCreator::ColliderCreator;
     };
 
     class SphereCollider final : public ColliderCreator<SphereCollider> {
     public:
-        static constexpr const char* name = "Sphere";
+        static constexpr const char* colliderTypeName = "Sphere";
 
         using ColliderCreator::ColliderCreator;
 
