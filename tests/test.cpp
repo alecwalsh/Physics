@@ -5,6 +5,7 @@
 #include <glm/geometric.hpp>
 
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 #include <gtest/gtest.h>
 
@@ -26,20 +27,6 @@ class CollisionTestsFixture : public ::testing::Test {
 
     TimeManagerShim tm{elapsedTime, deltaTime};
 protected:
-    float GenericCollisionTest(Physics::Collider& collider1, const Physics::Collider& collider2) {
-        float maxVelocity = 0;
-
-        while(Physics::timeManager->elapsedTime < secondsToRun) {
-//            collider1.ApplyCollision(collider2);
-
-            maxVelocity = std::max(maxVelocity, glm::length(collider1.velocity));
-
-            Physics::timeManager->elapsedTime += timeStep;
-        }
-
-        return maxVelocity;
-    }
-
     void SetUp() override {
         Physics::timeManager = &tm;
     }
@@ -48,59 +35,6 @@ protected:
         Physics::timeManager = nullptr;
     }
 };
-
-TEST_F(CollisionTestsFixture, CubePlaneCollisionTest) {
-    Physics::SimpleCubeCollider collider1{{0, 10, 0}, 1, {}};
-
-    Physics::SimplePlaneCollider collider2{0};
-
-    float maxVelocity = GenericCollisionTest(collider1, collider2);
-
-    glm::vec3 correctFinalPosition = {0, 0.5, 0};
-
-    EXPECT_EQ(collider1.position, correctFinalPosition);
-    EXPECT_EQ(maxVelocity, 13.5704918F);
-}
-
-TEST_F(CollisionTestsFixture, SphereSphereCollisionTest) {
-    Physics::SphereCollider collider1{{0, 40, 0}, 2, {}};
-
-    Physics::SphereCollider collider2{{0, 5, 0}, 2, {}};
-
-    float maxVelocity = GenericCollisionTest(collider1, collider2);
-
-    glm::vec3 correctFinalPosition = {0, 7, 0};
-
-    EXPECT_EQ(collider1.position, correctFinalPosition);
-    EXPECT_EQ(maxVelocity, 25.3424797F);
-}
-
-TEST_F(CollisionTestsFixture, SpherePlaneCollisionTest) {
-    Physics::SphereCollider collider1{{0, 40, 0}, 2, {}};
-
-    Physics::SimplePlaneCollider collider2{0};
-
-    float maxVelocity = GenericCollisionTest(collider1, collider2);
-
-    glm::vec3 correctFinalPosition = {0, 1, 0};
-
-    EXPECT_EQ(collider1.position, correctFinalPosition);
-    EXPECT_EQ(maxVelocity, 27.6314774F);
-}
-
-TEST_F(CollisionTestsFixture, CollideAllTest) {
-    std::vector<Physics::Collider*> colliders;
-
-    Physics::SphereCollider sphereCollider1{{0, 40, 0}, 2, {}};
-    Physics::SphereCollider sphereCollider2{{0, 5, 0}, 2, {}};
-    Physics::SimplePlaneCollider planeCollider1{0};
-
-    colliders.push_back(&sphereCollider1);
-    colliders.push_back(&sphereCollider2);
-    colliders.push_back(&planeCollider1);
-
-    //collideAll(colliders);
-}
 
 Physics::SimpleCubeCollider CreateCube(glm::vec3 position, glm::vec3 size) {
     return {position, size, {}};
