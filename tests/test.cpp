@@ -1,4 +1,5 @@
 #include <Physics/Collision.hpp>
+#include <Physics/PhysicsWorld.hpp>
 
 #include <Physics/config.hpp>
 
@@ -26,13 +27,11 @@ class CollisionTestsFixture : public ::testing::Test {
     double deltaTime = timeStep;
 
     TimeManagerShim tm{elapsedTime, deltaTime};
+
+    Physics::PhysicsWorld physicsWorld;
 protected:
     void SetUp() override {
-        Physics::timeManager = &tm;
-    }
-
-    void TearDown() override {
-        Physics::timeManager = nullptr;
+        physicsWorld.timeManager = &tm;
     }
 };
 
